@@ -1,0 +1,29 @@
+{
+  "name": "statica",
+  "displayName": "STATICA",
+  "version": "0.1.0",
+  "description": "Brings Suresoft STATIC static analysis into your development flow. Each time you change code, it analyzes only the changed files to keep your workspace results current, and provides skills for local verification of C/C++ analysis errors and recovery of Wrapper settings. Requires a STATIC installation.",
+  "author": {
+    "name": "Suresoft Technologies",
+    "email": "bizcenter@suresofttech.com",
+    "url": "https://www.suresofttech.com"
+  },
+  "homepage": "https://github.com/SuresoftTechnologies/statica-plugin",
+  "repository": "https://github.com/SuresoftTechnologies/statica-plugin",
+  "license": "MIT",
+  "keywords": [
+    "STATIC",
+    "static-analysis",
+    "code-quality",
+    "C",
+    "C++",
+    "Java",
+    "Kotlin",
+    "Python",
+    "C#",
+    "coding-rules",
+    "code-metrics"
+  ],
+  "documentationUrl": "https://github.com/SuresoftTechnologies/statica-plugin#readme",
+  "privacyPolicyUrl": "https://github.com/SuresoftTechnologies/statica-plugin/blob/main/PRIVACY.md"
+}

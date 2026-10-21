@@ -1,0 +1,185 @@
+{
+  "_comment": "Known-path data table for Windows IDE/toolchain detection. Each entry maps an IDE/environment to the executables it ships and the standard install path patterns. Version/revision parts of paths are globs (*), so vendor version bumps keep matching. Executable names are SEEDS: the detector globs the matched bin folder for anything that looks like a compiler/linker/archiver and verifies it, rather than trusting the name. Path separators are normalized, so forward slashes here are fine on Windows.",
+  "environments": [
+    {
+      "id": "aurix-tasking-cctc",
+      "name": "AURIX - TASKING CCTC",
+      "family": "tasking",
+      "compiler_seeds": ["cctc.exe"],
+      "cpp_compiler_seeds": ["cctc.exe"],
+      "linker_seeds": ["ltc.exe"],
+      "archiver_seeds": ["artc.exe"],
+      "path_patterns": [
+        "C:/Infineon/AURIX-Studio-*/tools/Compilers/Tasking_*/ctc/bin"
+      ]
+    },
+    {
+      "id": "aurix-tricore-gcc",
+      "name": "AURIX - TriCore GCC",
+      "family": "gcc",
+      "compiler_seeds": ["tricore-*-gcc.exe"],
+      "cpp_compiler_seeds": ["tricore-*-g++.exe", "tricore-*-c++.exe"],
+      "linker_seeds": ["tricore-*-ld.exe"],
+      "archiver_seeds": ["tricore-*-ar.exe"],
+      "ranlib_seeds": ["tricore-*-ranlib.exe"],
+      "path_patterns": [
+        "C:/Infineon/AURIX-Studio-*/tools/Compilers/tricore-gcc*/bin"
+      ]
+    },
+    {
+      "id": "mingw-gcc",
+      "name": "CMake/Makefile - MinGW GCC",
+      "family": "gcc",
+      "compiler_seeds": ["gcc.exe"],
+      "cpp_compiler_seeds": ["g++.exe"],
+      "linker_seeds": ["ld.exe"],
+      "archiver_seeds": ["ar.exe"],
+      "ranlib_seeds": ["ranlib.exe"],
+      "path_patterns": [
+        "C:/MinGW/bin",
+        "C:/msys64/mingw64/bin",
+        "C:/msys64/mingw32/bin"
+      ]
+    },
+    {
+      "id": "llvm-clang",
+      "name": "CMake/Makefile - LLVM Clang",
+      "family": "llvm",
+      "compiler_seeds": ["clang.exe"],
+      "cpp_compiler_seeds": ["clang++.exe"],
+      "linker_seeds": ["lld.exe", "ld.lld.exe", "lld-link.exe"],
+      "archiver_seeds": ["llvm-ar.exe"],
+      "ranlib_seeds": ["llvm-ranlib.exe"],
+      "path_patterns": [
+        "C:/Program Files/LLVM/bin",
+        "C:/Program Files (x86)/LLVM/bin"
+      ]
+    },
+    {
+      "id": "ti-ccs-eclipse",
+      "name": "Code Composer Studio (Eclipse)",
+      "family": "ti-cgt",
+      "compiler_seeds": ["cl2000.exe", "cl430.exe", "cl6x.exe", "cl7x.exe", "armcl.exe", "tiarmclang.exe"],
+      "cpp_compiler_seeds": ["cl2000.exe", "cl430.exe", "cl6x.exe", "cl7x.exe", "armcl.exe", "tiarmclang.exe"],
+      "linker_seeds": ["cl2000.exe", "cl430.exe", "cl6x.exe", "armcl.exe"],
+      "archiver_seeds": ["ar2000.exe", "ar430.exe", "ar6x.exe", "armar.exe"],
+      "path_patterns": [
+        "C:/ti/ccs*/ccs/tools/compiler/ti-cgt-*/bin"
+      ]
+    },
+    {
+      "id": "ti-ccs-theia",
+      "name": "Code Composer Studio (Theia)",
+      "family": "ti-cgt",
+      "compiler_seeds": ["cl2000.exe", "cl430.exe", "cl6x.exe", "cl7x.exe", "armcl.exe", "tiarmclang.exe"],
+      "cpp_compiler_seeds": ["cl2000.exe", "cl430.exe", "cl6x.exe", "cl7x.exe", "armcl.exe", "tiarmclang.exe"],
+      "linker_seeds": ["cl2000.exe", "cl430.exe", "cl6x.exe", "armcl.exe"],
+      "archiver_seeds": ["ar2000.exe", "ar430.exe", "ar6x.exe", "armar.exe"],
+      "path_patterns": [
+        "C:/ti/ccs*/ccs/tools/compiler/ti-cgt-*/bin"
+      ]
+    },
+    {
+      "id": "codewarrior-coldfire",
+      "name": "CodeWarrior - ColdFire",
+      "family": "codewarrior",
+      "compiler_seeds": ["mwccmcf.exe"],
+      "cpp_compiler_seeds": ["mwccmcf.exe"],
+      "linker_seeds": ["mwldmcf.exe"],
+      "archiver_seeds": ["mwldmcf.exe"],
+      "path_patterns": [
+        "C:/Freescale/CW MCU v*/MCU/ColdFire_Tools/Command_Line_Tools"
+      ]
+    },
+    {
+      "id": "codewarrior-kinetis",
+      "name": "CodeWarrior - Kinetis",
+      "family": "gcc",
+      "compiler_seeds": ["arm-none-eabi-gcc.exe"],
+      "cpp_compiler_seeds": ["arm-none-eabi-g++.exe"],
+      "linker_seeds": ["arm-none-eabi-ld.exe"],
+      "archiver_seeds": ["arm-none-eabi-ar.exe"],
+      "ranlib_seeds": ["arm-none-eabi-ranlib.exe"],
+      "path_patterns": [
+        "C:/Freescale/CW MCU v*/Cross_Tools/arm-none-eabi-gcc-*/bin"
+      ]
+    },
+    {
+      "id": "codewarrior-qorivva",
+      "name": "CodeWarrior - Qorivva",
+      "family": "codewarrior",
+      "compiler_seeds": ["mwcceppc.exe"],
+      "cpp_compiler_seeds": ["mwcceppc.exe"],
+      "linker_seeds": ["mwldeppc.exe"],
+      "archiver_seeds": ["mwldeppc.exe"],
+      "path_patterns": [
+        "C:/Freescale/CW MCU v*/MCU/PA_Tools/Command_Line_Tools"
+      ]
+    },
+    {
+      "id": "microchip-studio",
+      "name": "Microchip Studio",
+      "family": "xc8",
+      "compiler_seeds": ["xc8-cc.exe", "xc8.exe"],
+      "cpp_compiler_seeds": ["xc8-cc.exe"],
+      "linker_seeds": ["xc8-cc.exe"],
+      "archiver_seeds": ["xc8-ar.exe"],
+      "path_patterns": [
+        "C:/Program Files/Microchip/xc8/v*/bin",
+        "C:/Program Files (x86)/Microchip/xc8/v*/bin"
+      ]
+    },
+    {
+      "id": "mplab-x",
+      "name": "MPLAB X IDE",
+      "family": "xc8",
+      "compiler_seeds": ["xc8-cc.exe", "xc8.exe"],
+      "cpp_compiler_seeds": ["xc8-cc.exe"],
+      "linker_seeds": ["xc8-cc.exe"],
+      "archiver_seeds": ["xc8-ar.exe"],
+      "path_patterns": [
+        "C:/Program Files/Microchip/xc8/v*/bin",
+        "C:/Program Files (x86)/Microchip/xc8/v*/bin"
+      ]
+    },
+    {
+      "id": "stm32cubeide",
+      "name": "STM32CubeIDE",
+      "family": "gcc",
+      "compiler_seeds": ["arm-none-eabi-gcc.exe"],
+      "cpp_compiler_seeds": ["arm-none-eabi-g++.exe", "arm-none-eabi-c++.exe"],
+      "linker_seeds": ["arm-none-eabi-ld.exe"],
+      "archiver_seeds": ["arm-none-eabi-ar.exe"],
+      "ranlib_seeds": ["arm-none-eabi-ranlib.exe"],
+      "path_patterns": [
+        "C:/ST/STM32CubeIDE_*/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.*/tools/bin"
+      ]
+    },
+    {
+      "id": "visual-studio-msvc",
+      "name": "Visual Studio C/C++ (MSVC)",
+      "family": "msvc",
+      "compiler_seeds": ["cl.exe"],
+      "cpp_compiler_seeds": ["cl.exe"],
+      "linker_seeds": ["link.exe"],
+      "archiver_seeds": ["lib.exe"],
+      "path_patterns": [
+        "C:/Program Files/Microsoft Visual Studio/*/*/VC/Tools/MSVC/*/bin/Host*/*",
+        "C:/Program Files (x86)/Microsoft Visual Studio/*/*/VC/Tools/MSVC/*/bin/Host*/*"
+      ]
+    },
+    {
+      "id": "vitis-unified",
+      "name": "Vitis Unified",
+      "family": "gcc",
+      "compiler_seeds": ["aarch64-none-elf-gcc.exe", "arm-none-eabi-gcc.exe", "mb-gcc.exe"],
+      "cpp_compiler_seeds": ["aarch64-none-elf-g++.exe", "arm-none-eabi-g++.exe", "mb-g++.exe"],
+      "linker_seeds": ["aarch64-none-elf-ld.exe", "arm-none-eabi-ld.exe", "mb-ld.exe"],
+      "archiver_seeds": ["aarch64-none-elf-ar.exe", "arm-none-eabi-ar.exe", "mb-ar.exe"],
+      "path_patterns": [
+        "C:/Xilinx/*/gnu/aarch64/nt/aarch64-none/bin",
+        "C:/Xilinx/*/Vitis/*/gnu/aarch64/nt/aarch64-none/bin"
+      ]
+    }
+  ]
+}

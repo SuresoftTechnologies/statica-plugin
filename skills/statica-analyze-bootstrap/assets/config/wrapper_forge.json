@@ -1,0 +1,242 @@
+{
+  "_comment": "Bridges this skill's toolchain detection to the `wrapper-forge add` CLI. Install-specific paths live here; the allowed `-i`/`-c` values mirror `wrapper-forge add --help`; the maps translate a detected environment/compiler into (-i ide, -c compiler).",
+
+  "wrapper_forge_exe": "C:/Suresoft/STATIC-5/static-arachne/bin/wrapper-forge.exe",
+  "works_dir": "C:/Suresoft/STATIC-5/static-arachne/works",
+
+  "_workspace_seed_comment": "Files copied into every freshly created workspace so STATIC treats it as a complete (empty) workspace. `template` is relative to the skill dir; `dest` is relative to the workspace root (parent dirs created as needed). app.data.json under .staticdata/.app is what makes the workspace usable.",
+  "workspace_seed": [
+    {"template": "templates/app.data.json", "dest": ".staticdata/.app/app.data.json"}
+  ],
+
+  "_project_creation_comment": "Step 7 (제거됨). 서버 프로젝트 생성은 이제 scripts/static_agent/server_api.py 가 open-api v1(POST /api/forward/open-api/v1/projects) 로 직접 호출한다. 소유자 이메일을 여기 박아 두던 블록은 삭제했다 — email 이 선택이라 비우면 서버가 accessKey 로 소유자를 정한다. 서버 주소와 accessKey 는 Arachne 자신의 conf/server.setting.json 에서 읽는다(settings.read_server_setting).",
+
+  "_report_generator_comment": "Step 8 (opt-in, SESSION auth): enable auto report generation BEFORE analyze. Needs a login (open-api bearer doesn't cover this web API): POST login_path with multipart form-data username/password -> JSESSIONID, then PUT settings_path?settingKey=setting_key with `payload` using that session. Server URL comes from server.setting.json (same host as project creation). Runs only when the caller passes --generate-report + id/pw (ask the user first).",
+  "report_generator": {
+    "login_path": "/api/login",
+    "settings_path": "/api/projects/key/{key}/settings",
+    "setting_key": "report_generator",
+    "payload": {"format": "PDF", "kinds": [1], "enable": true}
+  },
+
+  "_report_download_comment": "Step 11 (opt-in, runs when report gen was enabled; PARALLEL with step 10): after analyze, poll report status (forward endpoint, bearer) — 404=not started yet keep polling, WAIT/INPROGRESS keep polling, CANCEL/ERROR report+stop, FINISH -> download the zip via download_path into the project dir.",
+  "report_download": {
+    "status_path": "/api/forward/open-api/projects/{key}/report/status",
+    "download_path": "/api/forward/open-api/projects/{key}/report/download",
+    "poll_interval_sec": 5,
+    "poll_timeout_sec": 900
+  },
+
+  "_smart_suggestion_comment": "Step 10 (opt-in): after analyze, request Smart-Suggestion (auto fix proposals for detected defects). Only runnable once analysis is FINISHED, so it POLLs status_path (bearer) until terminal: wait on PENDING/CLIENT_ANALYZING/ANALYZING/POST_ANALYZING; stop (report status, no run) on ERROR/CANCELED/PARTIAL_FINISH; run on FINISHED. Then looks up numeric projectId via project_lookup_path and POSTs suggestion_path (SESSION auth — needs login, bearer gives 401). payload gets projectId injected at runtime.",
+  "smart_suggestion": {
+    "status_path": "/api/forward/open-api/projects/{key}/status",
+    "project_lookup_path": "/api/projects/key/{key}",
+    "suggestion_path": "/api/ai/smart-suggestion",
+    "login_path": "/api/login",
+    "poll_interval_sec": 5,
+    "poll_timeout_sec": 900,
+    "payload": {
+      "defectIds": null,
+      "filter": {
+        "id": null, "email": "", "name": "", "severity": [], "confidence": [],
+        "assignee": [], "file": [], "rule": [], "label": [], "function": [],
+        "containsText": "", "ruleCategory": "",
+        "status": ["Open", "Selected", "Resolved", "Reopen"]
+      },
+      "isPrioritizeCurrentProject": true
+    }
+  },
+
+  "_analyze_comment": "Step 9: run analyzer-csa.exe on the workspace after building through the wrapper. `analyze -w <workspace> -k <projectKey>` analyzes the captured build and (because scope is the whole workspace) uploads results to the server. parallel: null=omit (AUTO), 0=AUTO, N=up to N. no_cache -> -f. progress_format -> -pf. If report_generator was enabled (step 8), the report is generated automatically when analyze finishes.",
+  "analyze": {
+    "analyzer_exe": "C:/Suresoft/STATIC-5/static-arachne/bin/analyzer-csa.exe",
+    "parallel": null,
+    "no_cache": false,
+    "progress_format": false
+  },
+
+  "allowed": {
+    "ccs": ["cl2000", "c6000"],
+    "microchips": ["xc8_avr", "xc8", "xc16", "xc32", "arm_gcc", "avr8", "avr32"],
+    "mplab": ["xc8_avr", "xc8", "xc16", "xc32", "arm_gcc", "avr8", "avr32"],
+    "stm32cubeide": ["arm_gcc"],
+    "xilinx": ["arm_gcc", "arm64_gcc", "mb_gcc"],
+    "gnu": ["gcc"],
+    "visualstudio": ["cl"],
+    "llvm": ["clang"],
+    "codewarrior": ["mwccmcf", "mwcceppc", "gcc"],
+    "aurix": ["cctc", "gcc"]
+  },
+
+  "_by_environment_comment": "Primary map: detection environment id -> wrapper-forge args. `compiler` is a fixed value; `by_exe` selects the compiler from the detected exe stem (fnmatch) when one IDE ships several.",
+  "by_environment": {
+    "aurix-tasking-cctc":   {"ide": "aurix",        "compiler": "cctc"},
+    "aurix-tricore-gcc":    {"ide": "aurix",        "compiler": "gcc"},
+    "mingw-gcc":            {"ide": "gnu",          "compiler": "gcc"},
+    "llvm-clang":           {"ide": "llvm",         "compiler": "clang"},
+    "ti-ccs-eclipse":       {"ide": "ccs",          "by_exe": {"cl2000": "cl2000", "cl6x": "c6000"}},
+    "ti-ccs-theia":         {"ide": "ccs",          "by_exe": {"cl2000": "cl2000", "cl6x": "c6000"}},
+    "codewarrior-coldfire": {"ide": "codewarrior",  "compiler": "mwccmcf"},
+    "codewarrior-kinetis":  {"ide": "codewarrior",  "compiler": "gcc"},
+    "codewarrior-qorivva":  {"ide": "codewarrior",  "compiler": "mwcceppc"},
+    "microchip-studio":     {"ide": "microchips",   "compiler": "xc8"},
+    "mplab-x":              {"ide": "mplab",        "compiler": "xc8"},
+    "stm32cubeide":         {"ide": "stm32cubeide", "compiler": "arm_gcc"},
+    "visual-studio-msvc":   {"ide": "visualstudio", "compiler": "cl"},
+    "vitis-unified":        {"ide": "xilinx",       "by_exe": {"aarch64-none-elf-gcc": "arm64_gcc", "arm-none-eabi-gcc": "arm_gcc", "mb-gcc": "mb_gcc"}}
+  },
+
+  "_by_exe_comment": "Fallback when the detection source has no environment id (cmake_cache / compile_commands / env_path). Matched against the compiler exe stem with fnmatch, in order; first hit wins.",
+  "by_exe": [
+    {"match": "cl2000",  "ide": "ccs",          "compiler": "cl2000"},
+    {"match": "cl6x",    "ide": "ccs",          "compiler": "c6000"},
+    {"match": "cctc",    "ide": "aurix",        "compiler": "cctc"},
+    {"match": "tricore-*-gcc",          "ide": "aurix",   "compiler": "gcc"},
+    {"match": "aarch64-none-elf-gcc",   "ide": "xilinx",  "compiler": "arm64_gcc"},
+    {"match": "mb-gcc",  "ide": "xilinx",       "compiler": "mb_gcc"},
+    {"match": "mwccmcf", "ide": "codewarrior",  "compiler": "mwccmcf"},
+    {"match": "mwcceppc","ide": "codewarrior",  "compiler": "mwcceppc"},
+    {"match": "xc8-cc",  "ide": "microchips",   "compiler": "xc8"},
+    {"match": "xc8",     "ide": "microchips",   "compiler": "xc8"},
+    {"match": "clang",   "ide": "llvm",         "compiler": "clang"},
+    {"match": "cl",      "ide": "visualstudio", "compiler": "cl"},
+    {"match": "g++",     "ide": "gnu",          "compiler": "gcc"},
+    {"match": "gcc",     "ide": "gnu",          "compiler": "gcc"}
+  ],
+
+  "_ambiguous_exe_comment": "Exe names that legitimately belong to several IDEs. If detection has no environment id to disambiguate, the orchestrator refuses to guess and asks the user to pass --ide/--compiler.",
+  "ambiguous_exe": {
+    "arm-none-eabi-gcc": "arm-none-eabi-gcc ships with codewarrior (Kinetis), stm32cubeide, and xilinx. Pass --ide and --compiler explicitly."
+  },
+
+  "_substitution_comment": "Step 5: make the project build through the wrapper. The wrapper is a DIRECTORY (wrapper_dir/<name>) of shim exes named exactly like the originals. EVERY environment ships concrete, baked-in steps here — the per-IDE PDF under docs_dir is only the authoritative source, NOT something the skill has to open at runtime. `flow` routes the high-level handling: build_system (make/cmake command line), vs (property sheet + Executable Directories), ide_gui (per-IDE GUI/project-settings, expanded from `methods` below). Each ide_gui env names a `method`; the method's `steps`/`revert` are templates whose {placeholders} are filled from the env's params plus the resolved wrapper dir. Add or fix an IDE by editing data here — no code change. references/substitution.md is the human-readable companion with exact menu labels and screenshots references.",
+  "substitution": {
+    "wrapper_dir": "C:/Suresoft/STATIC-5/static-arachne/wrapper",
+    "docs_dir": "C:/Suresoft/STATIC-5/static-arachne/docs/ko",
+    "guide": "references/substitution.md",
+    "vs_props": "C:/Suresoft/STATIC-5/static-arachne/conf/static.vs.props",
+    "wrapper_exes": {
+      "gcc":   {"CC": "gcc.exe",   "CXX": "g++.exe",     "AR": "ar.exe"},
+      "clang": {"CC": "clang.exe", "CXX": "clang++.exe", "AR": "llvm-ar.exe"}
+    },
+
+    "_methods_comment": "Reusable ide_gui substitution recipes. {wrapper} = this wrapper's directory; other {placeholders} come from each env's params. The same recipe (e.g. eclipse_command) serves several IDEs; only the labels differ per env.",
+    "methods": {
+      "eclipse_command": {
+        "label": "Eclipse Tool Settings > Command",
+        "steps": [
+          "Project Explorer에서 프로젝트 우클릭 → [Properties].",
+          "[C/C++ Build] → [Settings] → [Tool Settings] 탭을 연다.",
+          "[{compiler_label}] 그룹의 [Command] 값을 wrapper 컴파일러 exe로 바꾼다 (원본과 같은 이름, 절대경로): {wrapper}\\<원본 컴파일러 exe>",
+          "[{linker_label}] 그룹의 [Command] 값을 wrapper 링커 exe로 바꾼다: {wrapper}\\<원본 링커 exe>",
+          "[Apply and Close] → 프로젝트 Clean → Rebuild → 빌드 로그의 컴파일러 경로가 {wrapper} 인지 확인."
+        ],
+        "revert": [
+          "[Command] 값을 원래대로 되돌린다 — 컴파일러: {revert_compiler}, 링커: {revert_linker}."
+        ]
+      },
+      "overwrite_bin": {
+        "label": "원본 bin 덮어쓰기 (forge -p 주의)",
+        "steps": [
+          "⚠ 이 환경은 wrapper exe를 원본 컴파일러 bin 폴더에 직접 덮어쓰는 방식이다. 되돌릴 수 있도록 먼저 원본 bin 폴더 전체를 같은 위치에 'bin_original' 이름으로 복사해 백업한다.",
+          "wrapper 생성(-p)은 원본 bin이 아니라 백업본 bin_original을 가리켜야 shim이 원본을 호출할 수 있다. 이 환경은 forge 단계에서 -p 를 bin_original 로 주고 wrapper 를 만든다.",
+          "{wrapper} 안의 wrapper 파일 전체를 원본 컴파일러 bin 폴더에 복사(덮어쓰기)한다.",
+          "프로젝트 Clean → Rebuild → 빌드가 wrapper 를 통해 도는지 확인."
+        ],
+        "revert": [
+          "덮어쓴 bin 폴더를 삭제하고 bin_original 을 bin 으로 되돌린다(이름 변경)."
+        ]
+      },
+      "microchip_flavour": {
+        "label": "Toolchain Flavour 추가",
+        "steps": [
+          "프로젝트 우클릭 → [Properties] → [Advanced] → [Flavour Configuration] → [Package Configuration].",
+          "치환할 툴체인(예: XC8)을 선택하고 [Add Flavour] 클릭.",
+          "[Package Name]에 식별용 이름(예: XC8_STATIC) 입력, [Package Base Path]를 wrapper 디렉터리로 지정: {wrapper}",
+          "[Toolchain Flavour]를 방금 추가한 flavour 로 변경 → 저장 → Rebuild → 빌드 로그가 wrapper 를 쓰는지 확인."
+        ],
+        "revert": [
+          "[Toolchain Flavour]를 원래 패키지로 되돌린다(추가한 flavour 항목은 남겨둬도 무방)."
+        ]
+      },
+      "mplab_build_tools": {
+        "label": "Options > Build Tools 경로 지정",
+        "steps": [
+          "[Tools] → [Options] → [Embedded] → [Build Tools] 탭에서 해당 툴체인(예: XC8)을 선택.",
+          "[C Compiler] 와 [Assembler] 경로를 wrapper exe 로 지정: {wrapper}\\xc8-cc.exe (어셈블러도 동일 exe).",
+          "프로젝트 [Properties] → 해당 Configuration → [Building] → 'Use clean target from Makefile' 토글을 켰다 끈다(설정 반영용).",
+          "Clean and Build → 출력 창의 컴파일러 경로가 {wrapper} 인지 확인."
+        ],
+        "revert": [
+          "[Tools] → [Options] → [Build Tools]에서 [Scan for Build Tools]로 원래 툴체인 경로를 복원한다."
+        ]
+      },
+      "build_variable": {
+        "label": "Build Variable 값 변경",
+        "steps": [
+          "프로젝트 우클릭 → [Properties] → [C/C++ Build] → [Build Variables].",
+          "'Show system variables' 체크 → [{variable}] 변수를 찾는다.",
+          "[{variable}] 값을 wrapper 디렉터리로 변경: {wrapper}",
+          "[Apply and Close] → Clean → Rebuild → 빌드 로그가 wrapper 를 쓰는지 확인."
+        ],
+        "revert": [
+          "[{variable}] 값을 원래 경로로 되돌린다(원래 없던 변수면 항목을 삭제)."
+        ]
+      },
+      "stm32_toolchain_manager": {
+        "label": "Toolchain Manager에 STATIC wrapper 등록 (Fixed)",
+        "steps": [
+          "프로젝트 우클릭 → [Properties].",
+          "[C/C++ Build] → [Settings] → [Tool Settings] → [MCU/MPU Toolchain] → [Open Toolchain Manager] 클릭.",
+          "[Add Local…] 클릭 후 STATIC wrapper 정보 입력 — [Name]: {toolchain_name}, [Prefix]: {prefix}, [Location]: {wrapper}",
+          "[Finish] → [Apply and Close].",
+          "[Select what toolchain to use]에서 [Fixed] 선택 → [{toolchain_name}] 선택 → [Apply and Close].",
+          "프로젝트 [Clean Project] → [Build Project] → 빌드 로그의 컴파일러 경로가 {wrapper} 인지 확인."
+        ],
+        "revert": [
+          "[Open Toolchain Manager] → [Select what toolchain to use]를 원래 toolchain(또는 Workspace Default)으로 되돌린다. 추가한 {toolchain_name} 항목은 남겨둬도 무방."
+        ]
+      },
+      "cmake_file_edit": {
+        "label": "CMakeLists.txt set(CMAKE_*_COMPILER) 추가",
+        "steps": [
+          "프로젝트의 CMakeLists.txt 를 연다 (IDE [Settings]에서 접근 가능).",
+          "아래 set() 구문을 추가해 컴파일러/링커/아카이버를 wrapper 로 지정한다 (CMake 는 / 구분자 권장):",
+          "    set(CMAKE_C_COMPILER {wrapper_fwd}/<원본 C 컴파일러 exe>)",
+          "    set(CMAKE_CXX_COMPILER {wrapper_fwd}/<원본 C++ 컴파일러 exe>)",
+          "    set(CMAKE_LINKER {wrapper_fwd}/<원본 링커 exe>)",
+          "    set(CMAKE_AR {wrapper_fwd}/<원본 ar exe>)",
+          "저장 후 [FLOW]에서 Clean(🧹) → Build → Output 의 컴파일러가 wrapper 이고 'Build Finished successfully' 인지 확인."
+        ],
+        "revert": [
+          "추가한 set(...) 구문을 주석 처리하거나 삭제하고 저장한다."
+        ]
+      }
+    },
+
+    "by_environment": {
+      "mingw-gcc":            {"flow": "build_system", "compiler_kind": "gcc",   "doc_by_build": {"cmake": "CMake (GCC, Clang) - Windows.pdf", "make": "Makefile (GCC, Clang) - Windows.pdf", "vs": "Visual Studio C C++.pdf"}},
+      "llvm-clang":           {"flow": "build_system", "compiler_kind": "clang", "doc_by_build": {"cmake": "CMake (GCC, Clang) - Windows.pdf", "make": "Makefile (GCC, Clang) - Windows.pdf", "vs": "Visual Studio C C++.pdf"}},
+      "visual-studio-msvc":   {"flow": "vs", "doc": "Visual Studio C C++.pdf"},
+
+      "aurix-tasking-cctc":   {"flow": "ide_gui", "method": "eclipse_command", "doc": "AURIX Development Studio - TASKING CCTC.pdf",
+                               "params": {"compiler_label": "C/C++ Compiler", "linker_label": "Linker", "revert_compiler": "기본값([Restore Defaults])", "revert_linker": "기본값([Restore Defaults])"}},
+      "aurix-tricore-gcc":    {"flow": "ide_gui", "method": "overwrite_bin", "doc": "AURIX Development Studio - TriCore GCC.pdf", "params": {}},
+      "ti-ccs-eclipse":       {"flow": "ide_gui", "method": "eclipse_command", "doc": "Code Composer Studio (Eclipse).pdf",
+                               "params": {"compiler_label": "<디바이스> Compiler", "linker_label": "<디바이스> Linker", "revert_compiler": "${CG_TOOL_CL}", "revert_linker": "${CG_TOOL_LNK}"}},
+      "ti-ccs-theia":         {"flow": "ide_gui", "method": "eclipse_command", "doc": "Code Composer Studio (Theia).pdf",
+                               "params": {"compiler_label": "<디바이스> Compiler", "linker_label": "<디바이스> Linker", "revert_compiler": "${CG_TOOL_CL}", "revert_linker": "${CG_TOOL_LNK}"}},
+      "codewarrior-coldfire": {"flow": "ide_gui", "method": "eclipse_command", "doc": "CodeWarrior - ColdFire (mwccmcf).pdf",
+                               "params": {"compiler_label": "ColdFire Compiler", "linker_label": "ColdFire Linker", "revert_compiler": "${CF_ToolsDir}/mwccmcf", "revert_linker": "${CF_ToolsDir}/mwldmcf"}},
+      "codewarrior-kinetis":  {"flow": "ide_gui", "method": "build_variable", "doc": "CodeWarrior - Kinetis (arm-none-eabi-gcc).pdf",
+                               "params": {"variable": "ARMSourceryDir"}},
+      "codewarrior-qorivva":  {"flow": "ide_gui", "method": "eclipse_command", "doc": "CodeWarrior - Qorivva (mwcceppc).pdf",
+                               "params": {"compiler_label": "Qorivva Compiler", "linker_label": "Qorivva Linker", "revert_compiler": "${...}/mwcceppc", "revert_linker": "${...}/mwldeppc"}},
+      "microchip-studio":     {"flow": "ide_gui", "method": "microchip_flavour", "doc": "Microchip Studio.pdf", "params": {}},
+      "mplab-x":              {"flow": "ide_gui", "method": "mplab_build_tools", "doc": "MPLAB X IDE.pdf", "params": {}},
+      "stm32cubeide":         {"flow": "ide_gui", "method": "stm32_toolchain_manager", "doc": "STM32CubeIDE.pdf",
+                               "params": {"prefix": "arm-none-eabi-", "toolchain_name": "STATIC_arm_gcc"}},
+      "vitis-unified":        {"flow": "ide_gui", "method": "cmake_file_edit", "doc": "Vitis Unified.pdf", "params": {}}
+    }
+  }
+}
