@@ -1,0 +1,31 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "statica",
+  "version": "0.1.0",
+  "description": "Skills for Suresoft STATIC static analysis: analyze changed files, upload to the STATIC server, manage rulesets, metrics, exclusions, and reports, and verify and recover C/C++ analysis settings. Requires a STATIC installation.",
+  "author": {
+    "name": "Suresoft Technologies",
+    "email": "bizcenter@suresofttech.com",
+    "url": "https://www.suresofttech.com"
+  },
+  "homepage": "https://github.com/SuresoftTechnologies/statica-plugin",
+  "repository": "https://github.com/SuresoftTechnologies/statica-plugin",
+  "license": "MIT",
+  "keywords": [
+    "static-analysis",
+    "code-quality",
+    "coding-rules",
+    "code-metrics",
+    "c",
+    "cpp",
+    "java",
+    "kotlin",
+    "python",
+    "csharp",
+    "cmake",
+    "makefile",
+    "visual-studio",
+    "gradle",
+    "maven"
+  ]
+}

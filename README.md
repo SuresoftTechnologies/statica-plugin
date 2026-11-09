@@ -2,7 +2,7 @@
 
 > 한국어: [README.ko.md](README.ko.md)
 
-STATICA (STATIC Intelligent Correction Agent) is an AI agent that lets you use STATIC static analysis in Claude Code. Whenever code changes during a coding session, STATICA re-analyzes only the changed files at the end of each response and reports the result, so your STATIC workspace stays current without a full rebuild. It also connects new projects to STATIC, manages the STATIC server project, and corrects C/C++ analysis configuration when STATIC can't analyze a file.
+STATICA (STATIC AI Agent) is an AI agent that lets you use STATIC static analysis in coding agents such as Claude Code, Codex CLI, Cursor, and GitHub Copilot. Whenever code changes during a coding session, STATICA re-analyzes only the changed files and reports the result, so your STATIC workspace stays current without a full rebuild. It also connects new projects to STATIC, manages the STATIC server project, and corrects C/C++ analysis configuration when STATIC can't analyze a file.
 
 STATIC is a static analysis tool that detects coding rule violations, runtime errors, and potential security vulnerabilities without executing the source code. It also provides domain-specific coding rule sets and software quality metrics.
 
@@ -12,7 +12,7 @@ STATICA does not replace STATIC's analysis results. STATIC performs the analysis
 
 | Need | STATIC and STATICA workflow |
 |---|---|
-| Keep analysis current while coding | After each Claude response, a Stop hook analyzes only the changed files and posts a one-line `[STATIC]` summary with defect counts by rule. |
+| Keep analysis current while coding | Analyzes only the changed files and posts a one-line `[STATIC]` summary with defect counts by rule. A Stop hook runs it automatically. |
 | Check on demand | `/statica:pre-analyze` analyzes the changed files and summarizes defects without uploading. |
 | Share results with the team | `/statica:upload` analyzes the whole project and creates a revision on the STATIC server, only when you ask. |
 | Connect a new project | A guided bootstrap identifies the build environment and compiler, captures the build, and registers the project on the server. |
@@ -21,7 +21,7 @@ STATICA does not replace STATIC's analysis results. STATIC performs the analysis
 
 ## Workflow at a glance
 
-1. Run `/statica:pre-analyze` in a project. If it isn't connected to STATIC yet, Claude explains the bootstrap and asks for your approval before starting.
+1. Run `/statica:pre-analyze` in a project. If it isn't connected to STATIC yet, the coding agent explains the bootstrap and asks for your approval before starting.
 2. Work as usual. After each response that changed analyzable sources, the Stop hook analyzes them within a time budget and reports defect counts by rule.
 3. When the team should see the result, run `/statica:upload`.
 4. Adjust rulesets, metrics, exclusions, and reports with the setting skills, or check `/statica:status`.
@@ -36,9 +36,9 @@ Add STATICA from Anthropic's plugin directory on claude.ai (**Customize > Plugin
 claude --plugin-dir ./statica-plugin
 ```
 
-Start a new session after installing, and approve the Stop hook in `/hooks` if Claude Code asks; automatic analysis needs it. If you used an earlier internal build (`static@agent-plugin-static`), uninstall it first so the hook doesn't run twice.
+Start a new session after installing, and approve the Stop hook in `/hooks` if asked; automatic analysis needs it.
 
-STATICA is for Claude Code: its hook and scripts run on your machine against a local STATIC installation. Without STATIC, or when its settings are missing, a command stops at its setup check and says what is missing, and the Stop hook stays silent. Run `/statica:status` to see the connection, automatic-analysis switch, and server state at once.
+Its scripts and Stop hook run on your machine against a local STATIC installation. Without STATIC, or when its settings are missing, a command stops at its setup check and says what is missing, and the Stop hook stays silent. Run `/statica:status` to see the connection, automatic-analysis switch, and server state at once.
 
 ## Example requests
 
@@ -77,7 +77,7 @@ Ruleset, metric, exclusion, and report settings belong to the server project, so
 
 This repository contains the skills, a Stop hook, and Python scripts that drive a local STATIC installation. It does not include STATIC itself. What runs on your machine:
 
-- **Stop hook.** Runs at the end of every Claude response. It exits within a fraction of a second unless the project is connected to STATIC, automatic analysis is on, and analyzable files changed. It never uploads, never blocks your turn, and always exits successfully.
+- **Stop hook.** Runs at the end of every response. It exits within a fraction of a second unless the project is connected to STATIC, automatic analysis is on, and analyzable files changed. It never uploads, never blocks your turn, and always exits successfully.
 - **Analysis.** Runs STATIC's own analyzers and stores results in the STATIC workspace.
 - **Project files.** Connecting a C/C++ project changes its build settings so STATIC can capture the build, only after you approve. Originals are backed up first and the change can be reverted. Java, Kotlin, Python, and C# projects are not modified.
 - **Network.** Connects only to the STATIC server configured in your STATIC installation, over HTTPS with your AccessKey. **Certificate verification is disabled** for this connection because STATIC servers commonly use self-signed certificates on internal networks. Analysis results leave your machine only when you run `/statica:upload` or finish bootstrap.
@@ -97,7 +97,7 @@ For a product demo, purchase, or deployment consultation, contact [bizcenter@sur
 
 - STATICA sends nothing to Suresoft Technologies and has no telemetry.
 - It sends requests only to the STATIC server configured in your STATIC installation, and uploads analysis results only when you ask.
-- Its output, such as defect counts and file paths, appears in your Claude session and is sent to the AI model provider by your Claude client.
+- Its output, such as defect counts and file paths, appears in your coding agent session and is sent to the AI model provider by your coding agent client.
 
 The full policy is in [PRIVACY.md](PRIVACY.md). For support and questions, contact [bizcenter@suresofttech.com](mailto:bizcenter@suresofttech.com).
 

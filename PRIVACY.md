@@ -33,7 +33,7 @@ The plugin connects only to **the STATIC server configured in your STATIC instal
 
 Connections to the STATIC server use HTTPS **without certificate verification**, because STATIC servers commonly use self-signed certificates on internal networks. Point STATIC only at a server you trust on a network you trust.
 
-Separately, the plugin's output is shown in your Claude session. That output includes defect counts by rule, file paths, and status messages, and your Claude client sends it to the AI model provider under that provider's privacy policy (for Claude, Anthropic's privacy policy).
+Separately, the plugin's output is shown in your coding agent session. That output includes defect counts by rule, file paths, and status messages, and your coding agent client sends it to the AI model provider under that provider's privacy policy (for Claude, Anthropic's privacy policy).
 
 ## Third parties
 
