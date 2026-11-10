@@ -73,9 +73,34 @@ claude --plugin-dir ./statica-plugin
 
 룰셋, 메트릭, 분석 제외 범위, 보고서 설정은 서버 프로젝트에 저장되므로, 변경하면 그 프로젝트를 쓰는 모든 사용자에게 적용됩니다.
 
+## MCP 서버
+
+STATICA에는 같은 작업을 MCP 도구로 제공하는 MCP 서버도 들어 있습니다. 스킬을 불러오는 에이전트뿐 아니라 Claude Desktop, Cursor, VS Code 등 어떤 MCP 클라이언트에서도 쓸 수 있습니다. 스킬이 없는 클라이언트에서도 프로젝트 연결, 분석, 업로드, 서버 프로젝트 관리까지 그대로 할 수 있습니다. 스킬이 따르는 절차는 도구(`statica_get_guide`)로 돌려주므로, 스킬이 없어도 같은 안내를 보고 작업할 수 있습니다.
+
+공식 MCP 레지스트리에는 `io.github.SuresoftTechnologies/statica-mcp`로 등록되어 있습니다.
+
+실행하는 방법은 세 가지입니다.
+
+- **플러그인으로.** STATICA를 설치하면 서버가 자동으로 등록됩니다(`.mcp.json`). 그래서 Claude Code에서는 스킬과 함께 도구를 바로 쓸 수 있습니다.
+- **번들로.** 이 저장소의 릴리스에서 `statica-mcp.mcpb`를 받아, MCP 번들 설치를 지원하는 클라이언트에서 엽니다. 자체적으로 Python을 준비하므로 따로 설치할 것이 없습니다.
+- **클라이언트를 인터프리터에 연결.** `scripts/mcp_server.py`를 Python 3.10 이상으로 실행합니다. 런처 `scripts/statica-mcp.cmd`가 Windows와 Linux에서 실제로 동작하는 인터프리터를 골라 줍니다.
+
+도구는 스킬과 대응합니다.
+
+| 구분 | 도구 |
+|---|---|
+| 조회 전용 | `statica_doctor`, `statica_status`, `statica_scope_show`, `statica_ruleset_show`, `statica_metric_show`, `statica_report_generator_show`, `statica_get_guide` |
+| 분석과 보고서 | `statica_pre_analyze`, `statica_report`, `statica_upload`, `statica_set_auto_analysis` |
+| 서버 프로젝트 설정 | `statica_scope_exclude` / `_include` / `_skip_module` / `_unskip_module`, `statica_ruleset_set`, `statica_metric_set`, `statica_report_generator_set` |
+| 프로젝트 연결 | `statica_bootstrap_detect`, `_begin`, `_guard`, `_verify`, `_finish`, `_abort` |
+
+프롬프트 `connect-project`와 `upload-analysis`가 안내 흐름을 시작합니다. 프로젝트 연결과 전체 분석 업로드는 프로젝트 파일이나 공용 서버를 바꾸므로, 동의 힌트가 붙어 있고 먼저 사용자 승인을 받습니다. 연결 전에는 `statica_get_guide`를 읽습니다. STATIC이 없어도 서버는 정상적으로 시작하고 `statica_doctor`가 무엇이 빠졌는지 알려 주므로, 어느 PC에 설정해 두어도 안전합니다.
+
+번들은 STATIC 설치 경로를 `ARACHNE_INSTALL_PATH`에서 읽습니다. 그 값이 PC에 설정되어 있지 않을 때만 번들의 `STATICA_INSTALL_PATH` 설정으로 경로를 넘기면 되고, 비워 두면 PC에 이미 설정된 값을 건드리지 않습니다.
+
 ## STATIC 연동 방식
 
-이 저장소에는 스킬, Stop 훅, 그리고 사용자 PC에 설치된 STATIC을 실행하는 Python 스크립트가 들어 있습니다. STATIC 자체는 포함되어 있지 않습니다. 사용자 PC에서 실행되는 내용은 다음과 같습니다.
+이 저장소에는 스킬, Stop 훅, MCP 서버, 그리고 사용자 PC에 설치된 STATIC을 실행하는 Python 스크립트가 들어 있습니다. STATIC 자체는 포함되어 있지 않습니다. 사용자 PC에서 실행되는 내용은 다음과 같습니다.
 
 - **Stop 훅.** 응답이 끝날 때마다 실행됩니다. 프로젝트가 STATIC에 연결되어 있고, 자동 분석이 켜져 있고, 분석 대상 파일이 바뀐 경우에만 분석하며, 그 밖의 경우에는 1초 안에 끝납니다. 서버에 업로드하지 않고, 작업을 막지 않으며, 항상 정상 종료합니다.
 - **분석.** STATIC의 분석기를 실행하고, 결과를 STATIC 워크스페이스에 저장합니다.
@@ -95,7 +120,7 @@ claude --plugin-dir ./statica-plugin
 
 ## 개인정보 처리방침
 
-- STATICA는 Suresoft Technologies로 어떤 데이터도 보내지 않으며, 텔레메트리도 수집하지 않습니다.
+- STATICA는 Suresoft Technologies로 어떤 데이터도 보내지 않으며, 텔레메트리도 수집하지 않습니다. MCP 서버도 자체 텔레메트리가 없으며, 각 호출을 사용자 PC의 런타임으로 전달할 뿐 자체적인 네트워크 통신을 하지 않습니다.
 - STATIC에 설정된 STATIC 서버로만 요청을 보내고, 분석 결과는 사용자가 요청할 때만 업로드합니다.
 - 결함 건수, 파일 경로 같은 출력은 코딩 에이전트 세션에 표시되며, 코딩 에이전트 클라이언트를 통해 AI 모델 제공자에게 전송됩니다.
 
