@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.SuresoftTechnologies/statica-mcp",
+  "title": "STATICA STATIC analysis tools",
+  "description": "Drive Suresoft STATIC analysis from a coding agent: connect, analyze, upload, manage rulesets.",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/SuresoftTechnologies/statica-plugin",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/SuresoftTechnologies/statica-plugin/releases/download/v0.1.0/statica-mcp.mcpb",
+      "fileSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

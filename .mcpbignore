@@ -1,0 +1,34 @@
+# The MCPB bundle carries the MCP server and the runtime it drives: scripts/
+# (the server and the shared CLI) and skills/ (the CLI command handlers live in
+# skills/*/scripts, and statica_get_guide serves the SKILL.md / reference text).
+# Everything that belongs only to the Claude Code plugin, or only to the repo,
+# is left out.
+
+# Claude Code plugin surface, not used by the MCP bundle
+.claude-plugin/
+hooks/
+.mcp.json
+scripts/statica-mcp.cmd
+
+# Repo / release tooling
+.git/
+.github/
+.gitignore
+.gitattributes
+tests/
+RELEASING.md
+server.json
+glama.json
+README.ko.md
+
+# Python / build caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+uv.lock
+*.mcpb

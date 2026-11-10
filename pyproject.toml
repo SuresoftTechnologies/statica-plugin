@@ -1,0 +1,11 @@
+[project]
+name = "statica-mcp"
+version = "0.1.0"
+description = "MCP server exposing Suresoft STATIC static-analysis tools"
+requires-python = ">=3.10"
+# No third-party dependencies on purpose: the server speaks JSON-RPC over stdio
+# directly and reaches STATIC through the plugin's own command-line runtime, so
+# it runs on a bare interpreter with nothing to install. The uv server type
+# fetches a matching CPython; requires-python keeps it at 3.10+, which the
+# runtime needs.
+dependencies = []
