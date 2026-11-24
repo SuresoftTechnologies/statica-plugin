@@ -13,7 +13,7 @@ disable-model-invocation: false
 
 - `INSTALL_PATH`: 환경 변수 `ARACHNE_INSTALL_PATH`의 값이다. 값이 없거나 아래 확인에 실패하면 STATIC 설치 폴더 경로를 사용자에게 요청하고 입력을 기다린다. 다른 위치를 추측해 탐색하지 않는다. 실행 코드도 이 환경 변수로 STATIC을 찾으므로, 사용자가 알려 준 경로를 쓸 때는 같은 셸 호출 안에서만 `ARACHNE_INSTALL_PATH`를 그 값으로 설정해 실행하고 영구 환경변수는 수정하지 않는다.
 - `KIT_PYTHON`: Agent Kit에 포함된 Python이다. Windows는 `${INSTALL_PATH}/agent_kit/python/python.exe`, Linux는 `${INSTALL_PATH}/agent_kit/python/bin/python3`이다. 시스템 Python이나 PATH의 Python을 쓰지 않는다.
-- `KIT_ROOT`: `${INSTALL_PATH}/agent_kit/plugins`이다. 공용 CLI(`${KIT_ROOT}/scripts/run.py`)와 자동 분석 Stop hook(`${KIT_ROOT}/hooks/`)이 여기에 있다.
+- `KIT_ROOT`: `${INSTALL_PATH}/agent_kit/plugins`이다. 공용 CLI(`${KIT_ROOT}/scripts/run.py`)가 여기에 있다.
 
 `KIT_PYTHON`, `${KIT_ROOT}/scripts/run.py`가 모두 있어야 진행한다.
 하나라도 없으면 분석·업로드·서버 연결·설정 변경을 시작하지 말고 아래 안내를 보여준 뒤 멈춘다. 실행 코드를 다른 곳에서 내려받거나 직접 작성해 대신하지 않는다.
@@ -61,9 +61,9 @@ disable-model-invocation: false
 
 ## 두 진입점, 하나의 CLI
 
-실행 코드는 모두 STATICA Agent Kit에 있다. 각 스킬은 Agent Kit의 자기 폴더(`${KIT_ROOT}/skills/<스킬>/scripts/run.py`)를 통해 공용 CLI를 부르고, 자동 훅(`${KIT_ROOT}/hooks/stop-hook.cmd`)은 공용 CLI(`${KIT_ROOT}/scripts/run.py`)를 직접 부른다. 전용 실행 코드와 bootstrap 설정·템플릿은 Agent Kit의 해당 스킬 폴더 안에 있으며, 분석 엔진·업로드·서버 API·상태 관리는 공유한다. 아래의 여러 기능을 함께 보여주는 예시는 공용 CLI 경로를 사용한다.
+실행 코드는 모두 STATICA Agent Kit에 있다. 각 스킬은 Agent Kit의 자기 폴더(`${KIT_ROOT}/skills/<스킬>/scripts/run.py`)를 통해 공용 CLI(`${KIT_ROOT}/scripts/run.py`)를 부른다. 전용 실행 코드와 bootstrap 설정·템플릿은 Agent Kit의 해당 스킬 폴더 안에 있으며, 분석 엔진·업로드·서버 API·상태 관리는 공유한다. 아래의 여러 기능을 함께 보여주는 예시는 공용 CLI 경로를 사용한다.
 
-**1. Stop 훅 (자동)** — `hooks/hooks.json` 이 매 응답 종료마다 `hooks/stop-hook.cmd` 를 돌린다. 값싼 게이트를 순서대로 통과해야만 실제 분석까지 간다. 대부분의 응답은 밀리초 안에 빠져나온다.
+**1. Stop 훅 (자동)** — **이 Claude 디렉터리 배포본에는 Stop 훅이 없다.** 같은 PC에 STATICA Stop 훅이 따로 설치된 경우(다른 코딩 에이전트용 STATICA 등)에만 아래처럼 동작하고, 그렇지 않으면 응답이 끝나도 자동 분석은 돌지 않는다. 이 배포본만 쓰는 사용자에게 자동 분석이 돈다고 말하지 말고, 변경분 분석은 `/statica:pre-analyze` 로 안내하라. 설치된 Stop 훅은 매 응답 종료마다 `stop-hook.cmd` 를 돌린다. 값싼 게이트를 순서대로 통과해야만 실제 분석까지 간다. 대부분의 응답은 밀리초 안에 빠져나온다.
 
 1. `stop_hook_active` — 훅으로 인한 재진입이면 즉시 종료
 2. 이 프로젝트의 자동 분석 스위치가 꺼져 있으면 종료 (`switch off`, **프로젝트 단위**다. `--global` 로 끈 경우도 여기서 걸린다)
@@ -76,7 +76,7 @@ disable-model-invocation: false
 
 **훅이 실제로 분석까지 가면 몇 초 걸린다** (실측: TU 하나에 7초). 그동안 응답은 이미 화면에 다 그려져 있고, `[STATIC]` 요약은 그 뒤에 붙는다. 조용히 빠지는 경우는 0.3~0.5초다.
 
-그래서 **네가 소스를 고친 응답의 바로 다음 턴에 `/statica:pre-analyze` 를 돌리면 대개 "변경된 분석 대상이 없습니다"가 나온다.** 훅이 이미 그 TU 를 분석했기 때문이며, 정상이다. 이것을 "분석이 안 됐다"로 읽고 재빌드나 `upload` 를 제안하지 마라.
+그래서 **Stop 훅이 설치된 환경에서는** 네가 소스를 고친 응답의 바로 다음 턴에 `/statica:pre-analyze` 를 돌리면 대개 "변경된 분석 대상이 없습니다"가 나온다.** 훅이 이미 그 TU 를 분석했기 때문이며, 정상이다. 이것을 "분석이 안 됐다"로 읽고 재빌드나 `upload` 를 제안하지 마라.
 
 **2. 슬래시 커맨드 (명시적)** — 사용자가 직접 부른다. 훅 예산에 묶이지 않으므로 전체 재빌드가 오래 걸려도 된다.
 

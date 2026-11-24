@@ -13,7 +13,7 @@ disable-model-invocation: true
 
 - `INSTALL_PATH`: 환경 변수 `ARACHNE_INSTALL_PATH`의 값이다. 값이 없거나 아래 확인에 실패하면 STATIC 설치 폴더 경로를 사용자에게 요청하고 입력을 기다린다. 다른 위치를 추측해 탐색하지 않는다. 실행 코드도 이 환경 변수로 STATIC을 찾으므로, 사용자가 알려 준 경로를 쓸 때는 같은 셸 호출 안에서만 `ARACHNE_INSTALL_PATH`를 그 값으로 설정해 실행하고 영구 환경변수는 수정하지 않는다.
 - `KIT_PYTHON`: Agent Kit에 포함된 Python이다. Windows는 `${INSTALL_PATH}/agent_kit/python/python.exe`, Linux는 `${INSTALL_PATH}/agent_kit/python/bin/python3`이다. 시스템 Python이나 PATH의 Python을 쓰지 않는다.
-- `KIT_ROOT`: `${INSTALL_PATH}/agent_kit/plugins`이다. 공용 CLI(`${KIT_ROOT}/scripts/run.py`)와 자동 분석 Stop hook(`${KIT_ROOT}/hooks/`)이 여기에 있다.
+- `KIT_ROOT`: `${INSTALL_PATH}/agent_kit/plugins`이다. 공용 CLI(`${KIT_ROOT}/scripts/run.py`)가 여기에 있다.
 - `KIT_SKILL_ROOT`: `${KIT_ROOT}/skills/status`이다. 이 스킬의 스크립트(`scripts/`)가 여기에 있다.
 
 `KIT_PYTHON`, `${KIT_SKILL_ROOT}/scripts/run.py`, `${KIT_ROOT}/scripts/run.py`가 모두 있어야 진행한다.
@@ -47,6 +47,7 @@ disable-model-invocation: true
 **`analysis`**
 - `bootstrapStatus` 가 `ready` 가 아니면 **부트스트랩이 안 끝난 것이다.** 분석이 안 되는 이유가 대개 여기 있다.
 - `hookEnabled` 와 `hookEnabledGlobally` 를 **둘 다 보여줘라.** 프로젝트만 껐는지 전역으로 껐는지 구분되지 않으면 "왜 자동 분석이 안 도나" 를 답할 수 없다.
+- 이 Claude 디렉터리 배포본에는 Stop 훅이 없으므로, 이 두 값은 같은 PC에 따로 설치된 STATICA Stop 훅이 있을 때만 의미가 있다. 켜져 있어도 이 배포본만으로는 응답마다 자동 분석이 돌지 않는다는 점을 함께 알려라.
 
 **`server.analysis`** — **마지막 전체 분석**이다. `lastRevisionSequence` 는 웹 History 에 보이는 번호(#8 등)이고, `lastAnalyzedAt` 은 그 시각(초 단위 epoch)이다. 둘 다 `null` 이면 **성공한 분석이 아직 없다.** 이 값은 경로를 가리지 않는다 — 웹에서 돌렸든 커맨드로 돌렸든 revision 이 생겼으면 잡힌다.
 

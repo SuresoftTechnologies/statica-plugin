@@ -1,6 +1,6 @@
 # Privacy Policy — Suresoft STATIC plugin (statica)
 
-This policy covers the `statica` Skills and Stop hook entry in this Claude directory distribution and the STATICA Agent Kit scripts they run. The Skills contain no executable code; the scripts, the Stop hook script, and their Python runtime ship with STATIC in `<ARACHNE_INSTALL_PATH>/agent_kit`, and their source is in the [full source repository](https://github.com/SuresoftTechnologies/statica-plugin/tree/main). The optional MCP server is distributed separately in that repository and is not part of this distribution. This policy does not cover STATIC (Arachne) itself, which is a separate Suresoft Technologies product with its own terms and data handling.
+This policy covers the `statica` Skills in this Claude directory distribution and the STATICA Agent Kit scripts they run. The Skills contain no executable code, and this distribution installs no hooks; the scripts and their Python runtime ship with STATIC in `<ARACHNE_INSTALL_PATH>/agent_kit`, and their source is in the [full source repository](https://github.com/SuresoftTechnologies/statica-plugin/tree/main). The optional MCP server is distributed separately in that repository and is not part of this distribution. This policy does not cover STATIC (Arachne) itself, which is a separate Suresoft Technologies product with its own terms and data handling.
 
 **Last updated:** 2026-11-24
 
@@ -17,7 +17,7 @@ To work, it reads the following on your machine:
 ## How data is used and stored
 
 - **Analysis:** the plugin runs STATIC's analyzers (`analyzer-csa`, `analyzer-plugin`) on your machine. Results are stored in the STATIC workspace under your STATIC installation (`works/`).
-- **Automatic analysis switch:** the on/off state for each project is stored in `~/.suresoft/data/plugins/static/state.json`.
+- **Automatic analysis switch:** the on/off state for each project is stored in `~/.suresoft/data/plugins/static/state.json`. It is used only by a STATICA Stop hook installed separately; this distribution has none.
 - **First-time connection (bootstrap):** with your approval, connecting a C/C++ project to STATIC changes your project's build settings so that STATIC can capture the build. Original files are backed up in the STATIC workspace before they change, and the change can be reverted. Java, Kotlin, Python, and C# projects are not modified.
 - **Toolchain recovery:** verification runs on copies. When a fix is verified, the plugin updates the STATIC wrapper configuration inside your STATIC installation and keeps a plan with before/after hashes and a diff.
 - **Reports:** reports you request are downloaded to the path you choose.
