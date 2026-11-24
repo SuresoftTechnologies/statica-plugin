@@ -2,7 +2,7 @@
   "name": "statica",
   "displayName": "STATICA",
   "version": "0.1.1",
-  "description": "Brings Suresoft STATIC static analysis into your development flow. Each time you change code, it analyzes only the changed files to keep your workspace results current, and provides skills for local verification of C/C++ analysis errors and recovery of Wrapper settings. Requires a STATIC installation.",
+  "description": "Brings Suresoft STATIC static analysis into your development flow. Each time you change code, it analyzes only the changed files to keep your workspace results current, and provides skills for local verification of C/C++ analysis errors and recovery of Wrapper settings. Requires STATIC 5.0.1 (5 Service Pack 1) or later with the STATICA Agent Kit, which runs these skills and the Stop hook.",
   "author": {
     "name": "Suresoft Technologies",
     "email": "bizcenter@suresofttech.com",
@@ -24,6 +24,6 @@
     "coding-rules",
     "code-metrics"
   ],
-  "documentationUrl": "https://github.com/SuresoftTechnologies/statica-plugin#readme",
-  "privacyPolicyUrl": "https://github.com/SuresoftTechnologies/statica-plugin/blob/main/PRIVACY.md"
+  "documentationUrl": "https://github.com/SuresoftTechnologies/statica-plugin/tree/claude-directory#readme",
+  "privacyPolicyUrl": "https://github.com/SuresoftTechnologies/statica-plugin/blob/claude-directory/PRIVACY.md"
 }

@@ -5,11 +5,27 @@ user-invocable: true
 disable-model-invocation: false
 ---
 
-## 설치 경로와 호스트 연결
+## 설치 경로와 실행 런타임
 
-PLUGIN_ROOT는 이 진입점이 속한 설치 플러그인 루트다. skills/<id>/SKILL.md에서는 ../..이다. 공용 scripts/assets/tmpa는 플러그인 루트에 한 번만 배치한다. 스킬의 references와 보조 문서는 해당 스킬 파일 기준이다.
+이 스킬 패키지에는 실행 코드가 없다. 실행 코드와 Python 런타임은 STATIC에 포함된 STATICA Agent Kit(`agent_kit`)에 있고, 이 스킬은 그 코드를 실행하도록 안내한다. 이 문서와 같은 폴더의 참고 문서 링크는 지금 읽은 SKILL.md의 부모 디렉터리(SKILL_ROOT) 기준이다.
 
-`${PLUGIN_ROOT}`와 `${PLUGIN_DATA}`가 셸에 자동 설정됐다고 가정하지 않는다. 로드한 파일의 실제 위치로 루트를 확인하고, 실행할 때 실제 절대경로로 대체하거나 동일 셸 호출에서 변수를 설정한다. PLUGIN_DATA는 호스트가 제공하는 영속 데이터 경로를 우선 사용하고, 없으면 사용자 데이터 디렉터리 아래 이 플러그인 전용 경로를 사용한다. 사용자의 분석 대상 작업 디렉터리는 바꾸지 않는다. bash 예제는 bash에서 실행한다.
+첫 실행 전에 아래 값을 한 번 확인하고 같은 대화에서 재사용한다. `${...}` 표기는 설명용이며 자동 설정된 환경변수가 아니다. 실행할 때 실제 절대경로로 바꾸고 따옴표로 감싼다.
+
+- `INSTALL_PATH`: 환경 변수 `ARACHNE_INSTALL_PATH`의 값이다. 값이 없거나 아래 확인에 실패하면 STATIC 설치 폴더 경로를 사용자에게 요청하고 입력을 기다린다. 다른 위치를 추측해 탐색하지 않는다. 실행 코드도 이 환경 변수로 STATIC을 찾으므로, 사용자가 알려 준 경로를 쓸 때는 같은 셸 호출 안에서만 `ARACHNE_INSTALL_PATH`를 그 값으로 설정해 실행하고 영구 환경변수는 수정하지 않는다.
+- `KIT_PYTHON`: Agent Kit에 포함된 Python이다. Windows는 `${INSTALL_PATH}/agent_kit/python/python.exe`, Linux는 `${INSTALL_PATH}/agent_kit/python/bin/python3`이다. 시스템 Python이나 PATH의 Python을 쓰지 않는다.
+- `KIT_ROOT`: `${INSTALL_PATH}/agent_kit/plugins`이다. 공용 CLI(`${KIT_ROOT}/scripts/run.py`)와 자동 분석 Stop hook(`${KIT_ROOT}/hooks/`)이 여기에 있다.
+
+`KIT_PYTHON`, `${KIT_ROOT}/scripts/run.py`가 모두 있어야 진행한다.
+하나라도 없으면 분석·업로드·서버 연결·설정 변경을 시작하지 말고 아래 안내를 보여준 뒤 멈춘다. 실행 코드를 다른 곳에서 내려받거나 직접 작성해 대신하지 않는다.
+
+```text
+[설치 확인]
+• 확인한 STATIC 설치 경로: {INSTALL_PATH 또는 "설정되지 않음"}
+• 필요: STATICA Agent Kit(agent_kit)이 포함된 STATIC 5.0.1(5 Service Pack 1) 이상
+• 제품 설치·지원: bizcenter@suresofttech.com
+```
+
+사용자의 분석 대상 작업 디렉터리는 바꾸지 않는다. bash 예제는 bash에서 실행한다.
 
 **사용자에게는 한국어로 답하라.** 사용자가 다른 언어로 말을 걸었다면 그 언어를 따른다.
 
@@ -45,7 +61,7 @@ PLUGIN_ROOT는 이 진입점이 속한 설치 플러그인 루트다. skills/<id
 
 ## 두 진입점, 하나의 CLI
 
-스킬은 자기 폴더의 `scripts/run.py`를 통해 공용 CLI를 부르고, 자동 훅은 공용 CLI(`${PLUGIN_ROOT}/scripts/run.py`)를 직접 부른다. 전용 실행 코드와 bootstrap 설정·템플릿은 해당 스킬 안에 있으며, 분석 엔진·업로드·서버 API·상태 관리는 공유한다. 아래의 여러 기능을 함께 보여주는 예시는 공용 CLI 경로를 사용한다.
+실행 코드는 모두 STATICA Agent Kit에 있다. 각 스킬은 Agent Kit의 자기 폴더(`${KIT_ROOT}/skills/<스킬>/scripts/run.py`)를 통해 공용 CLI를 부르고, 자동 훅(`${KIT_ROOT}/hooks/stop-hook.cmd`)은 공용 CLI(`${KIT_ROOT}/scripts/run.py`)를 직접 부른다. 전용 실행 코드와 bootstrap 설정·템플릿은 Agent Kit의 해당 스킬 폴더 안에 있으며, 분석 엔진·업로드·서버 API·상태 관리는 공유한다. 아래의 여러 기능을 함께 보여주는 예시는 공용 CLI 경로를 사용한다.
 
 **1. Stop 훅 (자동)** — `hooks/hooks.json` 이 매 응답 종료마다 `hooks/stop-hook.cmd` 를 돌린다. 값싼 게이트를 순서대로 통과해야만 실제 분석까지 간다. 대부분의 응답은 밀리초 안에 빠져나온다.
 
@@ -94,11 +110,11 @@ Stop 훅은 디렉터리를 가리지 않고 모든 세션의 모든 응답 끝�
 직접 부를 때의 실제 호출:
 
 ```bash
-python "${PLUGIN_ROOT}/scripts/run.py" pre-analyze --project-dir "$(pwd)"
-python "${PLUGIN_ROOT}/scripts/run.py" upload --project-dir "$(pwd)"
-python "${PLUGIN_ROOT}/scripts/run.py" switch on|off --project-dir "$(pwd)"
-python "${PLUGIN_ROOT}/scripts/run.py" status --project-dir "$(pwd)"
-python "${PLUGIN_ROOT}/scripts/run.py" doctor
+"${KIT_PYTHON}" "${KIT_ROOT}/scripts/run.py" pre-analyze --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_ROOT}/scripts/run.py" upload --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_ROOT}/scripts/run.py" switch on|off --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_ROOT}/scripts/run.py" status --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_ROOT}/scripts/run.py" doctor
 ```
 
 설정 계열은 **조회 · 변경이 짝**이고, 변경 전에 조회하는 것이 규칙이다. `ruleset-show`/`ruleset-set`, `scope-show`/`scope-exclude`·`scope-include`, `metric-show`/`metric-set`, `report-generator-show`/`report-generator-set`. 보고서 생성은 `report` 하나가 요청 · 대기 · 다운로드를 다 한다.
@@ -136,4 +152,4 @@ Java·Kotlin·Python·C#의 upload도 변경 여부와 무관하게 전량 분�
 - **`ARACHNE_INSTALL_PATH`** 환경변수가 Arachne(STATIC) 설치 경로를 가리켜야 한다. 그 아래 `bin/`, `works/`, `conf/` 를 쓴다. 없으면 `NO_INSTALL_PATH`.
 - **서버 주소와 AccessKey** 는 Arachne 자신의 설정(`conf/server.setting.json`)에 등록되어 있어야 한다. 이 플러그인은 읽기만 한다.
   - **사용자에게 AccessKey 를 묻지 마라. 어떤 파일에도 쓰지 마라.** `NO_SERVER_SETTING`·`NO_SERVER_URL`·`NO_ACCESS_KEY` 가 나오면 Arachne 설정에서 등록하도록 안내하는 것이 전부다.
-- 환경이 의심스러우면 점검한다: `python "${PLUGIN_ROOT}/scripts/run.py" doctor`
+- 환경이 의심스러우면 점검한다: `"${KIT_PYTHON}" "${KIT_ROOT}/scripts/run.py" doctor`

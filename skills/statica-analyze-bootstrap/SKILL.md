@@ -5,18 +5,28 @@ user-invocable: true
 disable-model-invocation: false
 ---
 
-## 설치 경로와 호스트 연결
+## 설치 경로와 실행 런타임
 
-PLUGIN_ROOT는 이 진입점이 속한 설치 플러그인 루트다. skills/<id>/SKILL.md에서는 ../..이다. 공용 scripts/assets/tmpa는 플러그인 루트에 한 번만 배치한다. 스킬의 references와 보조 문서는 해당 스킬 파일 기준이다.
+이 스킬 패키지에는 실행 코드가 없다. 실행 코드와 Python 런타임은 STATIC에 포함된 STATICA Agent Kit(`agent_kit`)에 있고, 이 스킬은 그 코드를 실행하도록 안내한다. 이 문서와 같은 폴더의 참고 문서 링크는 지금 읽은 SKILL.md의 부모 디렉터리(SKILL_ROOT) 기준이다.
 
-`${PLUGIN_ROOT}`와 `${PLUGIN_DATA}`가 셸에 자동 설정됐다고 가정하지 않는다. 로드한 파일의 실제 위치로 루트를 확인하고, 실행할 때 실제 절대경로로 대체하거나 동일 셸 호출에서 변수를 설정한다. PLUGIN_DATA는 호스트가 제공하는 영속 데이터 경로를 우선 사용하고, 없으면 사용자 데이터 디렉터리 아래 이 플러그인 전용 경로를 사용한다. 사용자의 분석 대상 작업 디렉터리는 바꾸지 않는다. bash 예제는 bash에서 실행한다.
+첫 실행 전에 아래 값을 한 번 확인하고 같은 대화에서 재사용한다. `${...}` 표기는 설명용이며 자동 설정된 환경변수가 아니다. 실행할 때 실제 절대경로로 바꾸고 따옴표로 감싼다.
 
-SKILL_ROOT는 지금 읽은 SKILL.md의 부모 디렉터리다. 이 스킬 전용 scripts/assets는 SKILL_ROOT 아래에 있다. `${SKILL_ROOT}`는 설명용 표기이며 자동 설정된 환경변수가 아니다. 스크립트 실행 시 로드한 SKILL.md의 실제 위치로 절대경로를 구성한다. 프로젝트 작업 디렉터리를 스킬 폴더로 바꾸지 않는다.
+- `INSTALL_PATH`: 환경 변수 `ARACHNE_INSTALL_PATH`의 값이다. 값이 없거나 아래 확인에 실패하면 STATIC 설치 폴더 경로를 사용자에게 요청하고 입력을 기다린다. 다른 위치를 추측해 탐색하지 않는다. 실행 코드도 이 환경 변수로 STATIC을 찾으므로, 사용자가 알려 준 경로를 쓸 때는 같은 셸 호출 안에서만 `ARACHNE_INSTALL_PATH`를 그 값으로 설정해 실행하고 영구 환경변수는 수정하지 않는다.
+- `KIT_PYTHON`: Agent Kit에 포함된 Python이다. Windows는 `${INSTALL_PATH}/agent_kit/python/python.exe`, Linux는 `${INSTALL_PATH}/agent_kit/python/bin/python3`이다. 시스템 Python이나 PATH의 Python을 쓰지 않는다.
+- `KIT_ROOT`: `${INSTALL_PATH}/agent_kit/plugins`이다. 공용 CLI(`${KIT_ROOT}/scripts/run.py`)와 자동 분석 Stop hook(`${KIT_ROOT}/hooks/`)이 여기에 있다.
+- `KIT_SKILL_ROOT`: `${KIT_ROOT}/skills/statica-analyze-bootstrap`이다. 이 스킬의 스크립트(`scripts/`)와 실행 중에 읽는 설정 파일(`assets/`)이 여기에 있다.
 
-## 실행 경로
+`KIT_PYTHON`, `${KIT_SKILL_ROOT}/scripts/run.py`, `${KIT_ROOT}/scripts/run.py`가 모두 있어야 진행한다.
+하나라도 없으면 분석·업로드·서버 연결·설정 변경을 시작하지 말고 아래 안내를 보여준 뒤 멈춘다. 실행 코드를 다른 곳에서 내려받거나 직접 작성해 대신하지 않는다.
 
-`${SKILL_ROOT}`는 이 SKILL.md가 있는 디렉터리의 절대 경로로 바꿔 실행한다. 작업 디렉터리는 분석 대상 프로젝트에 유지한다. `scripts/run.py`는 이 플러그인의 공용 런타임을 사용하므로 스킬 폴더만 따로 복사하지 않는다.
+```text
+[설치 확인]
+• 확인한 STATIC 설치 경로: {INSTALL_PATH 또는 "설정되지 않음"}
+• 필요: STATICA Agent Kit(agent_kit)이 포함된 STATIC 5.0.1(5 Service Pack 1) 이상
+• 제품 설치·지원: bizcenter@suresofttech.com
+```
 
+사용자의 분석 대상 작업 디렉터리는 바꾸지 않는다. bash 예제는 bash에서 실행한다.
 
 **사용자에게는 한국어로 답하라.** 사용자가 다른 언어로 말을 걸었다면 그 언어를 따른다.
 
@@ -31,7 +41,7 @@ SKILL_ROOT는 지금 읽은 SKILL.md의 부모 디렉터리다. 이 스킬 전�
 ## 1. 증거를 모은다
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" detect --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" detect --project-dir "$(pwd)"
 ```
 
 `artifacts` 가 프로젝트에서 보이는 C/C++ 빌드 시스템 단서, `languageArtifacts` 가 C/C++ 이 아닐 가능성을 가리키는 단서(`build.gradle`, `pom.xml`, `*.csproj`, `pyproject.toml` …), `detection` 이 기존 탐지기가 본 것이다. `detection` 이 `null` 이거나 `detectionError` 가 채워져 있어도 실패가 아니다 — 판단은 네 몫이다.
@@ -69,7 +79,7 @@ python "${SKILL_ROOT}/scripts/run.py" detect --project-dir "$(pwd)"
 **AURIX TriCore GCC 라면 여기 오기 전에 §5 의 해당 절을 먼저 읽어라.** 그 환경만은 `bootstrap-begin` **이전에** 원본 `bin` 을 복사해 두고 `--compiler-path` 를 그 복사본으로 넘겨야 하며, 이 선택은 `begin` 이 끝나면 되돌릴 수 없다.
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-begin \
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-begin \
   --project-dir "$(pwd)" --name "<워크스페이스 이름>" \
   --ide <ide> --compiler <compiler> \
   --compiler-path "<컴파일러 실행 파일 절대경로>" \
@@ -113,7 +123,7 @@ make all CC=<wrapperDir>\gcc.exe CXX=<wrapperDir>\g++.exe AR=<wrapperDir>\ar.exe
 파일을 고치기 직전에:
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-guard \
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-guard \
   --project-dir "$(pwd)" --file "<고칠 파일>" --file "<또 있으면>"
 ```
 
@@ -134,7 +144,7 @@ Visual Studio, STM32CubeIDE, CCS(Eclipse·Theia), CodeWarrior(ColdFire·Kinetis�
 빌드 커맨드가 있으면 실행하고, GUI 빌드면 사용자에게 요청한다. 대부분의 환경은 **Clean 이 사실상 필수**다. 그 다음:
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-verify --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-verify --project-dir "$(pwd)"
 ```
 
 **빌드가 성공했다는 것과 wrapper 를 탔다는 것은 다른 이야기다.** 여기서 `ok: false` 면 빌드가 wrapper 를 거치지 않은 것이다 — 분석할 것이 없는 워크스페이스가 조용히 남는 원래의 버그가 바로 이것이다. 대응은 방금 쓴 치환 방식에 따라 갈린다.
@@ -152,7 +162,7 @@ python "${SKILL_ROOT}/scripts/run.py" bootstrap-verify --project-dir "$(pwd)"
 ## 7. 마무리
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-finish --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-finish --project-dir "$(pwd)"
 ```
 
 캡처를 다시 확인하고, 서버에 프로젝트를 만들고, 워크스페이스를 `ready` 로 표시한다.
@@ -197,7 +207,7 @@ python "${SKILL_ROOT}/scripts/run.py" bootstrap-finish --project-dir "$(pwd)"
 ## 되돌리기
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-abort --project-dir "$(pwd)" --reason "<이유>"
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-abort --project-dir "$(pwd)" --reason "<이유>"
 ```
 
 보관해 둔 프로젝트 파일을 되돌리고, wrapper 와 워크스페이스를 지운다.

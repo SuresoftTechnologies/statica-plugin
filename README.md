@@ -28,6 +28,12 @@ STATICA does not replace STATIC's analysis results. STATIC performs the analysis
 
 The skills in this repository work with a STATIC installation. They are not a replacement for STATIC.
 
+## Claude directory package
+
+This Claude directory distribution contains the STATICA Skills and a Stop hook entry only. It does not bundle the scripts the skills and the hook run, a Python runtime, or the optional MCP server. The skills and the hook run the STATICA Agent Kit (`agent_kit`) that ships with STATIC: its scripts under `agent_kit/plugins/` (`scripts/`, `skills/`, `hooks/`) and the Python under `agent_kit/python/`. Product-backed actions therefore require STATIC 5.0.1 (5 Service Pack 1) or later, which includes the Agent Kit.
+
+The [full source repository](https://github.com/SuresoftTechnologies/statica-plugin/tree/main) also contains the scripts, the Stop hook script, and the optional MCP server.
+
 ## Install
 
 Add STATICA from Anthropic's plugin directory on claude.ai (**Customize > Plugins**). It loads in Claude Code through account sync. To try a local copy without installing, load it for one session from the folder that contains your checkout:
@@ -38,7 +44,7 @@ claude --plugin-dir ./statica-plugin
 
 Start a new session after installing, and approve the Stop hook in `/hooks` if asked; automatic analysis needs it.
 
-Its scripts and Stop hook run on your machine against a local STATIC installation. Without STATIC, or when its settings are missing, a command stops at its setup check and says what is missing, and the Stop hook stays silent. Run `/statica:status` to see the connection, automatic-analysis switch, and server state at once.
+The skills and the Stop hook run the Agent Kit's scripts on your machine, with the Python bundled in the Agent Kit, against your STATIC installation. STATIC is found through `ARACHNE_INSTALL_PATH`. Without the Agent Kit, or when its settings are missing, a command stops at its installation check and says what is missing, and the Stop hook does nothing. Run `/statica:status` to see the connection, automatic-analysis switch, and server state at once.
 
 ## Example requests
 
@@ -73,36 +79,15 @@ All skills need a STATIC installation for their product-backed actions.
 
 Ruleset, metric, exclusion, and report settings belong to the server project, so changes apply to everyone who uses that project.
 
-## MCP server
+## Optional MCP server
 
-STATICA also ships an MCP server that exposes the same actions to any MCP client — Claude Desktop, Cursor, VS Code, and others — not only to agents that load the skills. A client with no skills still gets the full flow: connect a project, analyze, upload, and manage the server project. The procedure the skills follow is served back through a tool (`statica_get_guide`), so a skill-less client has the same guidance to work from.
-
-It is listed in the official MCP registry as `io.github.SuresoftTechnologies/statica-mcp`.
-
-Three ways to run it:
-
-- **With the plugin.** Installing STATICA registers the server automatically (`.mcp.json`), so in Claude Code the tools are available alongside the skills.
-- **As a bundle.** Download `statica-mcp.mcpb` from this repository's releases and open it with a client that installs MCP bundles. It resolves its own Python, so nothing has to be installed first.
-- **Point a client at the interpreter.** Run `scripts/mcp_server.py` with Python 3.10 or later. The launcher `scripts/statica-mcp.cmd` picks a working interpreter on Windows and Linux.
-
-The tools mirror the skills:
-
-| Group | Tools |
-|---|---|
-| Read-only | `statica_doctor`, `statica_status`, `statica_scope_show`, `statica_ruleset_show`, `statica_metric_show`, `statica_report_generator_show`, `statica_get_guide` |
-| Analyze and report | `statica_pre_analyze`, `statica_report`, `statica_upload`, `statica_set_auto_analysis` |
-| Server-project settings | `statica_scope_exclude` / `_include` / `_skip_module` / `_unskip_module`, `statica_ruleset_set`, `statica_metric_set`, `statica_report_generator_set` |
-| Connect a project | `statica_bootstrap_detect`, `_begin`, `_guard`, `_verify`, `_finish`, `_abort` |
-
-Two prompts, `connect-project` and `upload-analysis`, start the guided flows. Connecting a project and uploading a full analysis change project files or the shared server, so they carry consent hints and ask for your approval first; read `statica_get_guide` before connecting. Without STATIC the server still starts and `statica_doctor` reports what is missing, so it is safe to leave configured on any machine.
-
-The bundle reads the STATIC installation from `ARACHNE_INSTALL_PATH`. When that is not already set on the machine, supply the path through the bundle's `STATICA_INSTALL_PATH` configuration; an empty value leaves the machine's own setting untouched.
+The STATICA MCP server is distributed separately from this Claude directory package and is not installed with it. It exposes the same workflows to MCP clients that do not load skills, and is listed in the official MCP registry as `io.github.SuresoftTechnologies/statica-mcp`. To set it up, follow the [full repository's MCP instructions](https://github.com/SuresoftTechnologies/statica-plugin/blob/main/README.md#mcp-server). It also requires a STATIC installation.
 
 ## Product-backed workflow
 
-This repository contains the skills, a Stop hook, an MCP server, and Python scripts that drive a local STATIC installation. It does not include STATIC itself. What runs on your machine:
+STATICA is used where STATIC with the STATICA Agent Kit is installed. This Claude directory package contains the skills and the Stop hook entry; the scripts they run, the Stop hook script, and their Python runtime come with STATIC's Agent Kit. It does not include STATIC itself. What runs on your machine:
 
-- **Stop hook.** Runs at the end of every response. It exits within a fraction of a second unless the project is connected to STATIC, automatic analysis is on, and analyzable files changed. It never uploads, never blocks your turn, and always exits successfully.
+- **Stop hook.** Runs at the end of every response through `<ARACHNE_INSTALL_PATH>/agent_kit/plugins/hooks/stop-hook.cmd`, and does nothing when that file is missing. It exits within a fraction of a second unless the project is connected to STATIC, automatic analysis is on, and analyzable files changed. It never uploads, never blocks your turn, and always exits successfully.
 - **Analysis.** Runs STATIC's own analyzers and stores results in the STATIC workspace.
 - **Project files.** Connecting a C/C++ project changes its build settings so STATIC can capture the build, only after you approve. Originals are backed up first and the change can be reverted. Java, Kotlin, Python, and C# projects are not modified.
 - **Network.** Connects only to the STATIC server configured in your STATIC installation, over HTTPS with your AccessKey. **Certificate verification is disabled** for this connection because STATIC servers commonly use self-signed certificates on internal networks. Analysis results leave your machine only when you run `/statica:upload` or finish bootstrap.
@@ -111,16 +96,19 @@ This repository contains the skills, a Stop hook, an MCP server, and Python scri
 
 ## Requirements
 
-- STATIC installed and licensed, with `ARACHNE_INSTALL_PATH` pointing to the installation
+- STATIC 5.0.1 (5 Service Pack 1) or later, installed and licensed, including the STATICA Agent Kit (`agent_kit/python/` and `agent_kit/plugins/`), with `ARACHNE_INSTALL_PATH` pointing to the installation
 - The STATIC server URL and AccessKey registered in STATIC's settings
-- Python 3.10 or later as `python3` or `python` on `PATH`
+- Python comes with the Agent Kit; none is needed on `PATH`
+- Git Bash on Windows, for the Stop hook
 - Windows or Linux
 
 For a product demo, purchase, or deployment consultation, contact [bizcenter@suresofttech.com](mailto:bizcenter@suresofttech.com).
 
 ## Privacy Policy
 
-- STATICA sends nothing to Suresoft Technologies and has no telemetry. The MCP server has none of its own either; it forwards each call to the local runtime and makes no network call of its own.
+The skills are instructions; the code they and the Stop hook run is the Agent Kit's scripts, which run on your machine.
+
+- STATICA sends nothing to Suresoft Technologies and has no telemetry.
 - It sends requests only to the STATIC server configured in your STATIC installation, and uploads analysis results only when you ask.
 - Its output, such as defect counts and file paths, appears in your coding agent session and is sent to the AI model provider by your coding agent client.
 
@@ -128,6 +116,6 @@ The full policy is in [PRIVACY.md](PRIVACY.md). For support and questions, conta
 
 ## License and trademarks
 
-This repository is licensed under the [MIT License](LICENSE). The license covers everything in this repository: the documentation, the skill files, the hook, and the scripts. It does not cover STATIC itself. STATIC and STATICA are Suresoft Technologies products, and no product functionality or product license is granted by this repository.
+This repository is licensed under the [MIT License](LICENSE). In this Claude directory distribution the license covers the documentation, the skill files, and the hook configuration; the scripts and the Stop hook script are published under the same license in the [full source repository](https://github.com/SuresoftTechnologies/statica-plugin/tree/main). It does not cover STATIC itself. STATIC and STATICA are Suresoft Technologies products, and no product functionality or product license is granted by this repository.
 
 Claude and Claude Code are trademarks of Anthropic. Other product names may be trademarks of their respective owners.

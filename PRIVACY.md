@@ -1,8 +1,8 @@
 # Privacy Policy — Suresoft STATIC plugin (statica)
 
-This policy covers the `statica` plugin: its skills, its Stop hook, and the Python scripts they run. It does not cover STATIC (Arachne) itself, which is a separate Suresoft Technologies product with its own terms and data handling.
+This policy covers the `statica` Skills and Stop hook entry in this Claude directory distribution and the STATICA Agent Kit scripts they run. The Skills contain no executable code; the scripts, the Stop hook script, and their Python runtime ship with STATIC in `<ARACHNE_INSTALL_PATH>/agent_kit`, and their source is in the [full source repository](https://github.com/SuresoftTechnologies/statica-plugin/tree/main). The optional MCP server is distributed separately in that repository and is not part of this distribution. This policy does not cover STATIC (Arachne) itself, which is a separate Suresoft Technologies product with its own terms and data handling.
 
-**Last updated:** 2026-10-16
+**Last updated:** 2026-11-24
 
 ## What is collected
 

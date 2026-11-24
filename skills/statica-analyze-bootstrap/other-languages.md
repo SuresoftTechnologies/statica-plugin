@@ -21,7 +21,7 @@
 ## 1. 워크스페이스를 만든다
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-begin \
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-begin \
   --project-dir "$(pwd)" --name "<워크스페이스 이름>" \
   --language <java|kotlin|python|csharp>
 ```
@@ -104,7 +104,7 @@ python "${SKILL_ROOT}/scripts/run.py" bootstrap-begin \
 ## 3. 입력을 확인한다
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-verify --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-verify --project-dir "$(pwd)"
 ```
 
 `ok: true` 면 분석할 것이 생긴 것이다. java · kotlin 은 기술서를 열어 모듈이 하나 이상인지까지 본다 — 모듈이 0개면 빌드가 소스를 하나도 컴파일하지 않은 것이니 2번으로 돌아간다.
@@ -112,7 +112,7 @@ python "${SKILL_ROOT}/scripts/run.py" bootstrap-verify --project-dir "$(pwd)"
 ## 4. 마무리한다
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-finish --project-dir "$(pwd)"
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-finish --project-dir "$(pwd)"
 ```
 
 서버에 프로젝트를 만들고(java · kotlin 은 이미 있으므로 확인만 한다), 워크스페이스를 `ready` 로 바꾸고, **이어서 전체 분석과 업로드까지 한다.** 사용자에게 따로 묻지 않는다 — 첫 revision 이 없으면 서버 화면에 보여줄 것이 없다.
@@ -131,7 +131,7 @@ python "${SKILL_ROOT}/scripts/run.py" bootstrap-finish --project-dir "$(pwd)"
 ## 되돌리기
 
 ```bash
-python "${SKILL_ROOT}/scripts/run.py" bootstrap-abort --project-dir "$(pwd)" --reason "<이유>"
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/run.py" bootstrap-abort --project-dir "$(pwd)" --reason "<이유>"
 ```
 
 C/C++ 과 달리 **프로젝트에서 되돌릴 것이 없다** — 치환도 wrapper 도 만든 적이 없으므로 워크스페이스만 지운다. 상태가 이미 `ready` 면 거절한다(끝난 연결을 끊는 것은 abort 의 일이 아니다).

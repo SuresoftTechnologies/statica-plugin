@@ -4,7 +4,7 @@
 
 출처는 두 갈래다.
 - `${ARACHNE_INSTALL_PATH}/docs/ko/*.pdf` — Suresoft 가 배포하는 환경별 한국어 가이드 16종. 각 항목의 **원본 컴파일러 확인 / 치환 / 빌드 / 검증 / 되돌리기** 는 전부 여기서 왔다.
-- 플러그인 자체 설정 — `${SKILL_ROOT}/assets/config/known_paths.json`(설치 경로 glob·실행 파일 시드), `${SKILL_ROOT}/assets/config/wrapper_forge.json`(forge 어휘·역매핑·치환 레시피). 각 항목의 **경로 형태 / 컴파일러 이름** 은 가이드의 예시 경로가 아니라 이 설정의 일반화된 glob 을 정본으로 쓴다.
+- 플러그인 자체 설정 — `${KIT_SKILL_ROOT}/assets/config/known_paths.json`(설치 경로 glob·실행 파일 시드), `${KIT_SKILL_ROOT}/assets/config/wrapper_forge.json`(forge 어휘·역매핑·치환 레시피). 각 항목의 **경로 형태 / 컴파일러 이름** 은 가이드의 예시 경로가 아니라 이 설정의 일반화된 glob 을 정본으로 쓴다.
 
 Arachne 가 갱신되면 `tools/regen-environments.py` 가 PDF 원문 텍스트를 다시 추출한다. 추출본은 `tools/extracted-guides/`, 사람이 정리한 중간 산출물은 `tools/curated/` 에 있다.
 

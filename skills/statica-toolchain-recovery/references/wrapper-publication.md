@@ -5,8 +5,8 @@
 Wrapper 반영은 복사본 CSA 검증과 별도 명령이다. 복구 작업은 `Recovered` 확인 후 계획·적용까지 추가 승인 없이 이어간다. 진단·로컬 검증만 요청했거나 `case.json`이 `Recovered`가 아니면 계획·적용을 하지 않는다.
 
 ```text
-python "${SKILL_ROOT}/scripts/static_recovery.py" plan-wrapper --run-dir <실행폴더>
-python "${SKILL_ROOT}/scripts/static_recovery.py" apply-wrapper --run-dir <실행폴더> --plan <publish-plan.json>
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/static_recovery.py" plan-wrapper --run-dir <실행폴더>
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/static_recovery.py" apply-wrapper --run-dir <실행폴더> --plan <publish-plan.json>
 ```
 
 `plan-wrapper`는 읽기만 하며 `apply-wrapper`만 실제 설정을 바꾼다. 대상 외 Wrapper 파일은 유지한다.

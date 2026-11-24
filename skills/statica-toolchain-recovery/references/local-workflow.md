@@ -45,8 +45,8 @@
 ## 시작과 조회
 
 ```text
-python "${SKILL_ROOT}/scripts/static_recovery.py" start --analysis-path <분석폴더> --run-dir <새실행폴더>
-python "${SKILL_ROOT}/scripts/static_recovery.py" inspect --run-dir <실행폴더>
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/static_recovery.py" start --analysis-path <분석폴더> --run-dir <새실행폴더>
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/static_recovery.py" inspect --run-dir <실행폴더>
 ```
 
 `start`는 분석 폴더 전체를 `inputs/analysis`로 복사하고 다음을 `case.json`에 기록한다.
@@ -105,7 +105,7 @@ python "${SKILL_ROOT}/scripts/static_recovery.py" inspect --run-dir <실행폴�
 ## 검증
 
 ```text
-python "${SKILL_ROOT}/scripts/static_recovery.py" verify --run-dir <실행폴더> --candidate <후보.json> --timeout 600
+"${KIT_PYTHON}" "${KIT_SKILL_ROOT}/scripts/static_recovery.py" verify --run-dir <실행폴더> --candidate <후보.json> --timeout 600
 ```
 
 1. case, evidence digest, 원본·소스·Wrapper 해시, candidate 계약을 확인한다.

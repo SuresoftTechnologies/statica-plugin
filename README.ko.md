@@ -28,6 +28,12 @@ STATICA가 STATIC의 분석 결과를 대신하지는 않습니다. 분석을 �
 
 이 저장소의 스킬은 설치된 STATIC과 함께 동작하며, STATIC을 대신하지 않습니다.
 
+## Claude 디렉터리 배포본
+
+이 Claude 디렉터리 배포본에는 STATICA 스킬과 Stop 훅 연결 설정만 들어 있습니다. 스킬과 훅이 실행하는 스크립트, Python 런타임, 선택 사항인 MCP 서버는 포함하지 않습니다. 스킬과 훅은 STATIC에 함께 설치되는 STATICA Agent Kit(`agent_kit`)을 실행합니다. 스크립트는 `agent_kit/plugins/`(`scripts/`, `skills/`, `hooks/`)에, Python은 `agent_kit/python/`에 있습니다. 따라서 제품 기능을 쓰려면 Agent Kit이 포함된 STATIC 5.0.1(5 Service Pack 1) 이상이 필요합니다.
+
+스크립트, Stop 훅 스크립트, MCP 서버는 [전체 소스 저장소](https://github.com/SuresoftTechnologies/statica-plugin/tree/main)에서도 볼 수 있습니다.
+
 ## 설치
 
 claude.ai의 Anthropic 플러그인 디렉터리(**Customize > Plugins**)에서 STATICA를 추가합니다. 추가한 플러그인은 계정 동기화를 통해 Claude Code에서도 사용할 수 있습니다. 설치하지 않고 로컬 사본으로 써 보려면, 저장소를 받은 폴더의 상위 폴더에서 다음 명령을 실행합니다. 이 경우 플러그인은 해당 세션에서만 로드됩니다.
@@ -38,7 +44,7 @@ claude --plugin-dir ./statica-plugin
 
 설치한 뒤 새 세션을 시작하고, 요청이 있으면 `/hooks`에서 Stop 훅을 승인합니다. 자동 분석에는 이 훅이 필요합니다.
 
-스크립트와 Stop 훅은 사용자 PC에서 실행되며, 그 PC에 설치된 STATIC을 사용합니다. STATIC이 설치되어 있지 않거나 설정이 빠져 있으면 명령은 설정 확인 단계에서 멈추고 무엇이 빠졌는지 알려 주며, Stop 훅은 아무것도 출력하지 않고 끝납니다. `/statica:status`를 실행하면 연결 상태, 자동 분석 설정, 서버 상태를 한 번에 확인할 수 있습니다.
+스킬과 Stop 훅은 Agent Kit의 스크립트를 Agent Kit에 포함된 Python으로 사용자 PC에서 실행하며, 그 PC에 설치된 STATIC을 사용합니다. STATIC 위치는 `ARACHNE_INSTALL_PATH`에서 찾습니다. Agent Kit이 없거나 설정이 빠져 있으면 명령은 설치 확인 단계에서 멈추고 무엇이 빠졌는지 알려 주며, Stop 훅은 아무것도 하지 않고 끝납니다. `/statica:status`를 실행하면 연결 상태, 자동 분석 설정, 서버 상태를 한 번에 확인할 수 있습니다.
 
 ## 요청 예시
 
@@ -73,36 +79,15 @@ claude --plugin-dir ./statica-plugin
 
 룰셋, 메트릭, 분석 제외 범위, 보고서 설정은 서버 프로젝트에 저장되므로, 변경하면 그 프로젝트를 쓰는 모든 사용자에게 적용됩니다.
 
-## MCP 서버
+## 선택 사항: MCP 서버
 
-STATICA에는 같은 작업을 MCP 도구로 제공하는 MCP 서버도 들어 있습니다. 스킬을 불러오는 에이전트뿐 아니라 Claude Desktop, Cursor, VS Code 등 어떤 MCP 클라이언트에서도 쓸 수 있습니다. 스킬이 없는 클라이언트에서도 프로젝트 연결, 분석, 업로드, 서버 프로젝트 관리까지 그대로 할 수 있습니다. 스킬이 따르는 절차는 도구(`statica_get_guide`)로 돌려주므로, 스킬이 없어도 같은 안내를 보고 작업할 수 있습니다.
-
-공식 MCP 레지스트리에는 `io.github.SuresoftTechnologies/statica-mcp`로 등록되어 있습니다.
-
-실행하는 방법은 세 가지입니다.
-
-- **플러그인으로.** STATICA를 설치하면 서버가 자동으로 등록됩니다(`.mcp.json`). 그래서 Claude Code에서는 스킬과 함께 도구를 바로 쓸 수 있습니다.
-- **번들로.** 이 저장소의 릴리스에서 `statica-mcp.mcpb`를 받아, MCP 번들 설치를 지원하는 클라이언트에서 엽니다. 자체적으로 Python을 준비하므로 따로 설치할 것이 없습니다.
-- **클라이언트를 인터프리터에 연결.** `scripts/mcp_server.py`를 Python 3.10 이상으로 실행합니다. 런처 `scripts/statica-mcp.cmd`가 Windows와 Linux에서 실제로 동작하는 인터프리터를 골라 줍니다.
-
-도구는 스킬과 대응합니다.
-
-| 구분 | 도구 |
-|---|---|
-| 조회 전용 | `statica_doctor`, `statica_status`, `statica_scope_show`, `statica_ruleset_show`, `statica_metric_show`, `statica_report_generator_show`, `statica_get_guide` |
-| 분석과 보고서 | `statica_pre_analyze`, `statica_report`, `statica_upload`, `statica_set_auto_analysis` |
-| 서버 프로젝트 설정 | `statica_scope_exclude` / `_include` / `_skip_module` / `_unskip_module`, `statica_ruleset_set`, `statica_metric_set`, `statica_report_generator_set` |
-| 프로젝트 연결 | `statica_bootstrap_detect`, `_begin`, `_guard`, `_verify`, `_finish`, `_abort` |
-
-프롬프트 `connect-project`와 `upload-analysis`가 안내 흐름을 시작합니다. 프로젝트 연결과 전체 분석 업로드는 프로젝트 파일이나 공용 서버를 바꾸므로, 동의 힌트가 붙어 있고 먼저 사용자 승인을 받습니다. 연결 전에는 `statica_get_guide`를 읽습니다. STATIC이 없어도 서버는 정상적으로 시작하고 `statica_doctor`가 무엇이 빠졌는지 알려 주므로, 어느 PC에 설정해 두어도 안전합니다.
-
-번들은 STATIC 설치 경로를 `ARACHNE_INSTALL_PATH`에서 읽습니다. 그 값이 PC에 설정되어 있지 않을 때만 번들의 `STATICA_INSTALL_PATH` 설정으로 경로를 넘기면 되고, 비워 두면 PC에 이미 설정된 값을 건드리지 않습니다.
+STATICA MCP 서버는 이 Claude 디렉터리 배포본과 별도로 배포되며, 함께 설치되지 않습니다. 스킬을 로드하지 않는 MCP 클라이언트에서도 같은 작업 흐름을 쓸 수 있게 해 주며, 공식 MCP 레지스트리에 `io.github.SuresoftTechnologies/statica-mcp`로 등재되어 있습니다. 설정 방법은 [전체 저장소의 MCP 안내](https://github.com/SuresoftTechnologies/statica-plugin/blob/main/README.ko.md#mcp-서버)를 참고하세요. MCP 서버도 설치된 STATIC이 필요합니다.
 
 ## STATIC 연동 방식
 
-이 저장소에는 스킬, Stop 훅, MCP 서버, 그리고 사용자 PC에 설치된 STATIC을 실행하는 Python 스크립트가 들어 있습니다. STATIC 자체는 포함되어 있지 않습니다. 사용자 PC에서 실행되는 내용은 다음과 같습니다.
+STATICA는 STATICA Agent Kit이 포함된 STATIC이 설치된 환경에서 사용합니다. 이 Claude 디렉터리 배포본에는 스킬과 Stop 훅 연결 설정이 들어 있고, 스킬이 실행하는 스크립트, Stop 훅 스크립트, Python 런타임은 STATIC의 Agent Kit에 포함되어 있습니다. STATIC 자체는 포함되어 있지 않습니다. 사용자 PC에서 실행되는 내용은 다음과 같습니다.
 
-- **Stop 훅.** 응답이 끝날 때마다 실행됩니다. 프로젝트가 STATIC에 연결되어 있고, 자동 분석이 켜져 있고, 분석 대상 파일이 바뀐 경우에만 분석하며, 그 밖의 경우에는 1초 안에 끝납니다. 서버에 업로드하지 않고, 작업을 막지 않으며, 항상 정상 종료합니다.
+- **Stop 훅.** 응답이 끝날 때마다 `<ARACHNE_INSTALL_PATH>/agent_kit/plugins/hooks/stop-hook.cmd`를 실행하며, 그 파일이 없으면 아무것도 하지 않습니다. 프로젝트가 STATIC에 연결되어 있고, 자동 분석이 켜져 있고, 분석 대상 파일이 바뀐 경우에만 분석하며, 그 밖의 경우에는 1초 안에 끝납니다. 서버에 업로드하지 않고, 작업을 막지 않으며, 항상 정상 종료합니다.
 - **분석.** STATIC의 분석기를 실행하고, 결과를 STATIC 워크스페이스에 저장합니다.
 - **프로젝트 파일.** C/C++ 프로젝트를 연결할 때, STATIC이 빌드를 캡처할 수 있도록 빌드 설정을 변경합니다. 사용자의 승인을 받은 뒤에만 진행하며, 원본을 먼저 백업하므로 되돌릴 수 있습니다. Java, Kotlin, Python, C# 프로젝트는 수정하지 않습니다.
 - **네트워크.** STATIC에 설정된 STATIC 서버에만 HTTPS로 접속하며, 이때 AccessKey를 사용합니다. STATIC 서버는 사내망에서 자체 서명 인증서를 쓰는 경우가 많아, 이 접속에서는 **인증서를 검증하지 않습니다**. 분석 결과는 `/statica:upload`를 실행하거나 부트스트랩을 마칠 때만 사용자 PC 밖으로 전송됩니다.
@@ -111,16 +96,19 @@ STATICA에는 같은 작업을 MCP 도구로 제공하는 MCP 서버도 들어 �
 
 ## 요구 사항
 
-- STATIC 설치 및 라이선스. `ARACHNE_INSTALL_PATH` 환경 변수가 STATIC 설치 경로를 가리켜야 합니다.
+- STATICA Agent Kit(`agent_kit/python/`, `agent_kit/plugins/`)이 포함된 STATIC 5.0.1(5 Service Pack 1) 이상 설치 및 라이선스. `ARACHNE_INSTALL_PATH` 환경 변수가 STATIC 설치 경로를 가리켜야 합니다.
 - STATIC 설정에 등록된 STATIC 서버 주소와 AccessKey
-- `PATH`에서 `python3` 또는 `python`으로 실행할 수 있는 Python 3.10 이상
+- Python은 Agent Kit에 포함되어 있어 `PATH`에 따로 필요하지 않습니다.
+- Windows에서는 Stop 훅 실행을 위해 Git Bash가 필요합니다.
 - Windows 또는 Linux
 
 제품 데모, 구매, 도입 상담은 [bizcenter@suresofttech.com](mailto:bizcenter@suresofttech.com)으로 문의하세요.
 
 ## 개인정보 처리방침
 
-- STATICA는 Suresoft Technologies로 어떤 데이터도 보내지 않으며, 텔레메트리도 수집하지 않습니다. MCP 서버도 자체 텔레메트리가 없으며, 각 호출을 사용자 PC의 런타임으로 전달할 뿐 자체적인 네트워크 통신을 하지 않습니다.
+스킬은 실행 지침이며, 스킬과 Stop 훅이 실행하는 코드는 사용자 PC에서 실행되는 Agent Kit의 스크립트입니다.
+
+- STATICA는 Suresoft Technologies로 어떤 데이터도 보내지 않으며, 텔레메트리도 수집하지 않습니다.
 - STATIC에 설정된 STATIC 서버로만 요청을 보내고, 분석 결과는 사용자가 요청할 때만 업로드합니다.
 - 결함 건수, 파일 경로 같은 출력은 코딩 에이전트 세션에 표시되며, 코딩 에이전트 클라이언트를 통해 AI 모델 제공자에게 전송됩니다.
 
@@ -128,6 +116,6 @@ STATICA에는 같은 작업을 MCP 도구로 제공하는 MCP 서버도 들어 �
 
 ## 라이선스와 상표
 
-이 저장소는 [MIT 라이선스](LICENSE)로 배포됩니다. 라이선스는 문서, 스킬 파일, 훅, 스크립트를 포함한 이 저장소의 모든 내용에 적용되며, STATIC 자체에는 적용되지 않습니다. STATIC과 STATICA는 Suresoft Technologies의 제품이며, 이 저장소는 어떠한 제품 기능이나 제품 라이선스도 제공하지 않습니다.
+이 저장소는 [MIT 라이선스](LICENSE)로 배포됩니다. 이 Claude 디렉터리 배포본에서 라이선스는 문서, 스킬 파일, 훅 설정에 적용되며, 스크립트와 Stop 훅 스크립트는 [전체 소스 저장소](https://github.com/SuresoftTechnologies/statica-plugin/tree/main)에서 같은 라이선스로 공개됩니다. STATIC 자체에는 적용되지 않습니다. STATIC과 STATICA는 Suresoft Technologies의 제품이며, 이 저장소는 어떠한 제품 기능이나 제품 라이선스도 제공하지 않습니다.
 
 Claude와 Claude Code는 Anthropic의 상표입니다. 그 밖의 제품명은 각 소유자의 상표일 수 있습니다.
