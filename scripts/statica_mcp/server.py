@@ -24,7 +24,7 @@ from pathlib import Path
 from . import guides
 from . import tools as catalog
 
-SERVER_INFO = {"name": "statica-mcp", "title": "STATICA", "version": "0.1.0"}
+SERVER_INFO = {"name": "statica-mcp", "title": "STATICA", "version": "0.1.1"}
 # 최신이 앞. 클라이언트가 모르는 버전을 부르면 최신으로 답한다.
 SUPPORTED_PROTOCOLS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
 MIN_PYTHON = (3, 10)

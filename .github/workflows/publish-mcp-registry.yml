@@ -28,7 +28,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to (re)publish, e.g. v0.1.0"
+        description: "Existing tag to (re)publish, e.g. v0.1.1"
         required: true
 
 permissions:
@@ -61,7 +61,7 @@ jobs:
                  "Bump the version fields and tag that commit (see RELEASING.md)."
             exit 1
           fi
-          for f in manifest.json pyproject.toml .claude-plugin/plugin.json; do
+          for f in manifest.json pyproject.toml .claude-plugin/plugin.json plugin.json gemini-extension.json; do
             case "$f" in
               *.json) v="$(jq -r '.version' "$f")" ;;
               *)      v="$(grep -oE 'version\s*=\s*"[^"]+"' "$f" | head -1 | sed -E 's/.*"([^"]+)".*/\1/')" ;;

@@ -1,6 +1,6 @@
 ---
 name: scope
-description: 분석에서 뺄 파일·디렉터리·빌드 모듈을 영구 설정한다
+description: 'Permanently excludes files, directories, or build modules from analysis.'
 user-invocable: true
 disable-model-invocation: true
 ---

@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "statica-mcp",
   "display_name": "STATICA STATIC analysis tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Brings Suresoft STATIC static analysis into an MCP client: connect a project, analyze changed files, upload a full analysis, manage rulesets, metrics, scope and reports. Requires a local STATIC installation; without one the server reports a single environment check.",
   "long_description": "STATICA exposes Suresoft STATIC's static analysis to an MCP client. STATIC produces the findings; these tools prepare, run and report that analysis and never fix defects in source code.\n\nThe server forwards each call to the plugin's own command-line runtime on the same machine. Connecting a project is a guided, approval-gated flow: read the bundled procedure with statica_get_guide and follow it. A full upload creates a team-visible revision on the STATIC server and runs only when asked.\n\nA local STATIC installation (with ARACHNE_INSTALL_PATH set, or the install path supplied in this bundle's configuration) and Python 3.10+ are required. Without STATIC the server still starts and statica_doctor reports what is missing, so it is safe to leave configured on any machine.",
   "author": {

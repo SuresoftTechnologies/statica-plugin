@@ -1,6 +1,6 @@
 ---
 name: status
-description: 이 프로젝트의 STATIC 상태를 한 번에 본다
+description: 'Shows this project''s STATIC status at a glance.'
 user-invocable: true
 disable-model-invocation: true
 ---

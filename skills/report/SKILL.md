@@ -1,6 +1,6 @@
 ---
 name: report
-description: 보고서를 새로 만들어 내려받는다
+description: 'Generates a new report and downloads it.'
 user-invocable: true
 disable-model-invocation: true
 ---

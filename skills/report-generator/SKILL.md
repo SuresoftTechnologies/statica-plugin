@@ -1,6 +1,6 @@
 ---
 name: report-generator
-description: 분석이 끝나면 보고서를 자동 생성할지 설정한다
+description: 'Sets whether a report is generated automatically when an analysis finishes.'
 user-invocable: true
 disable-model-invocation: true
 ---

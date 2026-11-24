@@ -1,6 +1,6 @@
 ---
 name: upload
-description: 프로젝트 전체를 분석해 STATIC 서버에 업로드한다
+description: 'Analyzes the whole project and uploads it to the STATIC server.'
 user-invocable: true
 disable-model-invocation: true
 ---

@@ -1,8 +1,6 @@
 ---
 name: statica-analyze-overview
-description: STATIC 정적분석에 손대기 전에 먼저 읽어라. /statica:pre-analyze·/statica:upload 같은 이
-  플러그인의 커맨드를 쓰려 할 때, 응답이 끝난 뒤 [STATIC] 요약이나 부트스트랩 안내가 저절로 나타나 이유가 궁금할 때, STATIC이 보고한
-  결함을 근거로 코드를 고칠지 판단하려 할 때 사용한다. 이 플러그인의 범위와 금지선, 두 진입점, 전제 조건을 알려준다.
+description: 'Read this before working on STATIC static analysis. Use it when you are about to use this plugin''s commands such as /statica:pre-analyze or /statica:upload, when you wonder why a [STATIC] summary or a bootstrap notice appeared by itself after a response, or when deciding whether to change code based on a defect STATIC reported. It explains this plugin''s scope and limits, its two entry points, and its prerequisites.'
 user-invocable: true
 disable-model-invocation: false
 ---

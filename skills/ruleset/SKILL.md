@@ -1,6 +1,6 @@
 ---
 name: ruleset
-description: 프로젝트에 적용할 룰셋과 룰 표시 언어를 바꾼다
+description: 'Changes the ruleset applied to the project and the language used to display rules.'
 user-invocable: true
 disable-model-invocation: true
 ---

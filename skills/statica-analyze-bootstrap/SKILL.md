@@ -1,11 +1,6 @@
 ---
 name: statica-analyze-bootstrap
-description: 'pre-analyze 가 `code: NEEDS_BOOTSTRAP` 을 돌려줬을 때, `reason: BOOTSTRAP_IN_PROGRESS`
-  로 부트스트랩이 아직 안 끝났다고 할 때, 또는 프로젝트가 STATIC 워크스페이스에 아직 연결되지 않았을 때 읽어라. 언어를 먼저 가른 뒤(C/C++
-  인가 java · kotlin · python · csharp 인가) 환경 식별 · 원본 컴파일러 확정 · wrapper 생성 · 치환 · 캡처
-  검증 · 서버 등록으로 이어지는 단계를 순서대로 지시하고, 중단된 부트스트랩을 이어서 마치는 법과 되돌리는 법도 담고 있다. 환경별 컴파일러 경로
-  · 치환 · 되돌리기 절차는 같은 디렉터리의 environments.md, C/C++ 이 아닌 언어의 절차는 other-languages.md
-  에 있다.'
+description: 'Read this when pre-analyze returns `code: NEEDS_BOOTSTRAP`, when `reason: BOOTSTRAP_IN_PROGRESS` says the bootstrap has not finished yet, or when the project is not yet connected to a STATIC workspace. It first splits by language (C/C++, or java, kotlin, python, csharp), then directs the steps in order: environment identification, confirming the original compiler, wrapper creation, substitution, capture verification, and server registration. It also covers finishing an interrupted bootstrap and reverting it. Per-environment compiler paths, substitution, and revert procedures are in environments.md in the same directory; procedures for languages other than C/C++ are in other-languages.md.'
 user-invocable: true
 disable-model-invocation: false
 ---
