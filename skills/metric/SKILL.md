@@ -1,6 +1,6 @@
 ---
 name: metric
-description: 어떤 코드 메트릭을 측정할지 켜고 끈다
+description: 'Turns individual code metrics on or off for measurement.'
 user-invocable: true
 disable-model-invocation: true
 ---

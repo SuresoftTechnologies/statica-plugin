@@ -2,8 +2,14 @@
 
 The MCP server in `scripts/` is distributed as an MCP Bundle (`.mcpb`) attached
 to a GitHub release and listed in the official MCP registry through
-`server.json`. The Claude Code plugin (skills, Stop hook, `.mcp.json`) is a
-separate distribution and is not affected by these steps.
+`server.json`. The plugin (skills, Stop hook, `.mcp.json`) shares the same
+version, so one `vX.Y.Z` tag on `main` releases both.
+
+The Claude directory distribution lives on the `claude-directory` branch. It is
+cut from the tagged `main` commit, keeps the same version, records
+`Source-main: <sha>` in its commit message, and is never merged back into
+`main`. Its skills and Stop hook run the copy of `scripts/`, `skills/`, and
+`hooks/` that ships in the STATIC Agent Kit (`agent_kit/plugins/`).
 
 **Releasing is automated.** A maintainer bumps the version in the tracked files
 and pushes a tag. `.github/workflows/publish-mcp-registry.yml` then builds the
@@ -17,9 +23,10 @@ bundle, creates the GitHub release, uploads the bundle, hashes it, and publishes
    - `server.json`
    - `manifest.json`
    - `pyproject.toml`
-   - `.claude-plugin/plugin.json`
+   - `.claude-plugin/plugin.json`, `plugin.json`, `gemini-extension.json`
    - `SERVER_INFO` in `scripts/statica_mcp/server.py`
 
+   In `server.json`, also point the package URL at `releases/download/vX.Y.Z/`.
    `test_versions_agree` checks they match; run the suite first:
 
    ```
@@ -30,7 +37,8 @@ bundle, creates the GitHub release, uploads the bundle, hashes it, and publishes
 
    ```
    grep -rn 'X\.Y\.Z' server.json manifest.json pyproject.toml \
-     .claude-plugin/plugin.json scripts/statica_mcp/server.py
+     .claude-plugin/plugin.json plugin.json gemini-extension.json \
+     scripts/statica_mcp/server.py
    ```
 
 2. Tag that commit and push the tag:
@@ -47,6 +55,12 @@ bundle, creates the GitHub release, uploads the bundle, hashes it, and publishes
    curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.SuresoftTechnologies"
    ```
 
+4. Update the `claude-directory` branch from the tagged commit, keeping the same
+   version and putting `Source-main: <sha>` and
+   `Distribution: claude-directory; do not merge into main.` in its commit
+   message. Ship the same commit's `scripts/`, `skills/`, and `hooks/` in the
+   STATIC Agent Kit.
+
 That is the whole release. The tag's version must match the tracked files or the
 workflow stops at its first step.
 
@@ -55,7 +69,7 @@ workflow stops at its first step.
 On a pushed `v*` tag (or `workflow_dispatch` with a tag):
 
 1. **Version guard** — the tag must equal the version in `server.json`, and
-   `manifest.json`, `pyproject.toml`, `.claude-plugin/plugin.json` and
+   `manifest.json`, `pyproject.toml`, the three plugin manifests and
    `SERVER_INFO` must all agree. A mismatch fails here, before anything is
    published.
 2. **Pack** — `mcpb pack` builds `statica-mcp.mcpb`. The name contains `mcp`

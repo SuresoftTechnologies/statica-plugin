@@ -1,6 +1,6 @@
 ---
 name: pre-analyze
-description: 변경된 소스만 STATIC으로 분석하고 결과 요약을 보여준다
+description: 'Analyzes only the changed sources with STATIC and shows a summary of the results.'
 user-invocable: true
 disable-model-invocation: true
 ---

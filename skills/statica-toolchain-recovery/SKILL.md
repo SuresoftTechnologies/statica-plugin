@@ -1,7 +1,6 @@
 ---
 name: statica-toolchain-recovery
-description: STATIC C/C++ 복구 요청 또는 분석 오류 발견 시, 확보된 오류 폴더로 parser.conf 회복 후보를 복사본에서
-  csa.exe로 검증하고 검증된 Wrapper 설정 변경을 자동으로 반영한다. 서버 API, UI, 소스 수정, 재빌드는 대상이 아니다.
+description: 'When asked for a STATIC C/C++ recovery or when an analysis error is found, verifies parser.conf recovery candidates with csa.exe on a copy, using the error folder already obtained, and automatically applies the verified Wrapper setting change. Server APIs, the UI, source changes, and rebuilds are out of scope.'
 user-invocable: true
 disable-model-invocation: false
 ---

@@ -406,10 +406,13 @@ class Packaging(unittest.TestCase):
         server = self._load("server.json")
         manifest = self._load("manifest.json")
         plugin = self._load(".claude-plugin/plugin.json")
+        root_plugin = self._load("plugin.json")
+        gemini = self._load("gemini-extension.json")
         import re
         pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
         pyver = re.search(r'version\s*=\s*"([^"]+)"', pyproject).group(1)
         versions = {server["version"], manifest["version"], plugin["version"],
+                    root_plugin["version"], gemini["version"],
                     pyver, mcp_server.SERVER_INFO["version"]}
         self.assertEqual(len(versions), 1, "version mismatch: %s" % versions)
 

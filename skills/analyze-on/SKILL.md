@@ -1,6 +1,6 @@
 ---
 name: analyze-on
-description: 자동 분석을 다시 켠다
+description: 'Turns automatic analysis back on.'
 user-invocable: true
 disable-model-invocation: true
 ---

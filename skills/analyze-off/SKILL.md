@@ -1,6 +1,6 @@
 ---
 name: analyze-off
-description: 자동 분석을 끈다
+description: 'Turns off automatic analysis.'
 user-invocable: true
 disable-model-invocation: true
 ---

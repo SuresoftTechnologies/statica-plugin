@@ -1,7 +1,7 @@
 {
   "name": "statica",
   "displayName": "STATICA",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Brings Suresoft STATIC static analysis into your development flow. Each time you change code, it analyzes only the changed files to keep your workspace results current, and provides skills for local verification of C/C++ analysis errors and recovery of Wrapper settings. Requires a STATIC installation.",
   "author": {
     "name": "Suresoft Technologies",
